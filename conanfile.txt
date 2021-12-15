@@ -1,0 +1,17 @@
+[requires]
+eigen/[>3.3.9]
+netcdf/4.7.4
+proj/8.0.1
+libcurl/7.79.1
+boost/1.77.0
+rapidjson/cci.20211112
+fast-cpp-csv-parser/cci.20200830
+pugixml/1.11
+
+[generators]
+cmake_find_package_multi
+
+[imports]
+ bin, *.dll -> ./bin # Copies all dll files from packages bin folder to my "bin" folder
+ lib, *.dylib* -> ./bin # Copies all dylib files from packages lib folder to my "bin" folder
+ lib, *.so* -> ./bin # Copies all so files from packages lib folder to my "bin" folder
