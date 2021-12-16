@@ -2,13 +2,13 @@
 // ReSharper disable CppClangTidyCertErr34C
 #ifndef READERWRITEROPENSKYCSV_H
 #define READERWRITEROPENSKYCSV_H
+#include "OpenSkyReader.h"
 
 #include <unordered_map>
 #include <functional>
+#include <vector>
 
 #include <csv.h>
-
-#include "OpenSkyReader.h"
 
 
 class OpenSkyCsvReader : public OpenSkyReader
@@ -16,6 +16,8 @@ class OpenSkyCsvReader : public OpenSkyReader
 	typedef io::CSVReader<16, io::trim_chars<' ', '\t'>, io::no_quote_escape<','>, io::ignore_overflow, io::no_comment>
 	CsvParser;
 public:
+	~OpenSkyCsvReader() override = default;
+
 	std::vector<ur::LineString> read(std::istream& fin) const override
 	{
 		FlightMap flightMap;

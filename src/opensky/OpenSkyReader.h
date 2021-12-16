@@ -1,7 +1,10 @@
 #ifndef READERWRITEROPENSKY_H
 #define READERWRITEROPENSKY_H
-#include <unordered_map>
+
 #include "../TypeDefs.h"
+
+#include <unordered_map>
+#include <vector>
 
 
 #if defined(__SSE4_2__)
@@ -56,11 +59,12 @@ typedef std::vector<StateVector> Flight;
 typedef std::unordered_map<std::string, Flight> FlightMap;
 typedef std::vector<Flight> Traffic;
 
+
 class OpenSkyReader
 {
 public:
 	virtual ~OpenSkyReader() = default;
-	std::vector<ur::LineString> read(const std::string& file) const;
+	std::vector<ur::LineString> readFile(const std::string& file) const;
 	virtual std::vector<ur::LineString> read(std::istream& stream) const = 0;
 protected:
 	std::vector<ur::LineString> constructTracks(const FlightMap& flightMap) const;

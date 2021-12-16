@@ -3,7 +3,6 @@
 #include <omp.h>
 #include <fstream>
 #include <istream>
-#include "../TypeDefs.h"
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/rolling_mean.hpp>
@@ -12,9 +11,10 @@
 
 using namespace boost::accumulators;
 
-std::vector<ur::LineString> OpenSkyReader::read(const std::string& file) const
+std::vector<ur::LineString> OpenSkyReader::readFile(const std::string& file) const
 {
 	std::ifstream fileStream(file.c_str(), std::ios_base::in | std::ios_base::binary);
+	auto open = fileStream.is_open();
 	return read(fileStream);
 }
 

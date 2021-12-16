@@ -142,6 +142,14 @@ target_link_libraries(${PROJECT_NAME} PRIVATE netCDF::netcdf)
 
 find_package(Boost REQUIRED)
 
+find_package(RapidJSON REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE RapidJSON::RapidJSON)
+
+find_package(fast-cpp-csv-parser REQUIRED)
+
+find_package(pugixml REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE pugixml::pugixml)
+
 FetchContent_Declare(
         uasgroundrisk
         GIT_REPOSITORY https://github.com/aliaksei135/uasgroundrisk.git
@@ -149,17 +157,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(uasgroundrisk)
 target_link_libraries(${PROJECT_NAME} PRIVATE uasgroundrisk)
-
-# GTest should be compiled with same flags as code under test
-# so using conan binaries causes strange errors
-FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG release-1.11.0
-)
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(googletest)
 
 
 ##############################################################
@@ -185,42 +182,6 @@ if (${PROJECT_NAME}_BUILD_TESTS)
         FetchContent_MakeAvailable(googletest)
     endif ()
 
-    ##################################
-    # matplotlib_cpp
-    # C++ wrapper around matplotlib for plotting of tests
-    # License: BSD-3
-    ##################################
-    # We do not really care about the performance of this as it is only for testing
-    FetchContent_Declare(
-            matplotlib_cpp
-            GIT_REPOSITORY https://github.com/lava/matplotlib-cpp.git
-            GIT_TAG 61501081ea32549df1a02dca26cb4edbe0b6a890
-    )
-    FetchContent_GetProperties(matplotlib_cpp)
-    if (NOT matplotlib_cpp_POPULATED)
-        FetchContent_Populate(matplotlib_cpp)
-        include_directories(${matplotlib_cpp_SOURCE_DIR})
-    endif ()
-
-    ##################################
-    # matplot++
-    # C++ data viz
-    # License: MIT
-    ##################################
-    # We do not really care about the performance of this as it is only for testing
-    #set(USE_SYSTEM_CIMG ON)
-    #FetchContent_Declare(
-    #    matplotplusplus
-    #    GIT_REPOSITORY https://github.com/alandefreitas/matplotplusplus
-    #    GIT_TAG origin/master
-    #)
-    #FetchContent_GetProperties(matplotplusplus)
-    #if(NOT matplotplusplus_POPULATED)
-    #    FetchContent_Populate(matplotplusplus)
-    #    add_subdirectory(${matplotplusplus_SOURCE_DIR} ${matplotplusplus_BINARY_DIR} EXCLUDE_FROM_ALL)
-    #endif()
-    #target_link_libraries(${PROJECT_NAME} PUBLIC Matplot++::matplot)
-
     enable_testing()
     add_subdirectory(test)
 endif ()
@@ -240,7 +201,7 @@ if (BUILD_DOC)
         add_custom_target(doc ALL
                 COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                COMMENT "Buidling Doxygen documentation"
+                COMMENT "Building Doxygen documentation"
                 VERBATIM)
     else (DOXYGEN_FOUND)
         message("No doxygen binary found on the system.")

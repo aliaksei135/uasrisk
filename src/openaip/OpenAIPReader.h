@@ -1,26 +1,31 @@
 #ifndef READEROPENAIP_H
 #define READEROPENAIP_H
-
-#include "../TypeDefs.h"
+#include <vector>
 #include <fstream>
 #include <map>
 #include <pugixml.hpp>
-#include <vector>
+
 
 #include <boost/algorithm/string.hpp>
+
+namespace ur
+{
+	class ExtrudedPolygon;
+}
+
 
 class OpenAIPReader
 {
 public:
 	explicit OpenAIPReader() = default;
 
-	std::vector<ur::Polygon> read(const std::string& file) const
+	std::vector<ur::ExtrudedPolygon> readFile(const std::string& file) const
 	{
 		std::ifstream fileStream(file.c_str(), std::ios_base::in | std::ios_base::binary);
 		return read(fileStream);
 	}
 
-	std::vector<ur::Polygon> read(std::istream& fin) const;
+	std::vector<ur::ExtrudedPolygon> read(std::istream& fin) const;
 
 protected:
 	/**
