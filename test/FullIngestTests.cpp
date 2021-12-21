@@ -18,10 +18,10 @@ TEST(FullIngestTests, IngestTest)
 	auto* vg = new ur::VoxelGrid(xyzBounds, resolution, 61);
 	ur::VoxelGridBuilder vgb(vg);
 
-	const OpenSkyCsvReader osReader;
+	const ur::io::OpenSkyCsvReader osReader;
 	const auto trajs = osReader.readFile("opensky_states.csv");
 
-	const OpenAIPReader oaReader;
+	const ur::io::OpenAIPReader oaReader;
 	const auto airspaces = oaReader.readFile("openaip_airspace_uk.aip");
 
 	vgb.handleTrajectory(trajs);

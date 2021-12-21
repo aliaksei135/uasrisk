@@ -11,7 +11,7 @@
 
 using namespace boost::accumulators;
 
-std::vector<ur::LineString> OpenSkyReader::readFile(const std::string& file) const
+std::vector<ur::LineString> ur::io::OpenSkyReader::readFile(const std::string& file) const
 {
 	std::ifstream fileStream(file.c_str(), std::ios_base::in | std::ios_base::binary);
 	auto open = fileStream.is_open();
@@ -19,7 +19,7 @@ std::vector<ur::LineString> OpenSkyReader::readFile(const std::string& file) con
 }
 
 
-std::vector<ur::LineString> OpenSkyReader::constructTracks(const FlightMap& flightMap) const
+std::vector<ur::LineString> ur::io::OpenSkyReader::constructTracks(const FlightMap& flightMap) const
 {
 	const auto& numFlights = flightMap.size();
 	std::vector<Flight> flightVec(numFlights);

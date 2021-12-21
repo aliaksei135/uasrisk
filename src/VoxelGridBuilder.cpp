@@ -121,7 +121,7 @@ void ur::VoxelGridBuilder::handleTrajectory(const LineString& ls) const
 		const auto& prevProjP = grid->world2Local(ls[i]);
 		const auto& projP = grid->world2Local(ls[i + 1]);
 		const auto& rp = grid->local2World(projP);
-		auto points = Bresenham3D::line3d(prevProjP, projP);
+		auto points = util::Bresenham3D::line3d(prevProjP, projP);
 		for (const auto& c : points)
 		{
 #pragma omp critical

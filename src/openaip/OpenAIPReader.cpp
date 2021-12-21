@@ -11,7 +11,7 @@
 using namespace pugi;
 using namespace boost::algorithm;
 
-std::vector<ur::ExtrudedPolygon> OpenAIPReader::read(std::istream& fin) const
+std::vector<ur::ExtrudedPolygon> ur::io::OpenAIPReader::read(std::istream& fin) const
 {
 	std::vector<ur::ExtrudedPolygon> polysOut;
 	// Load the stream into a buffer
@@ -58,8 +58,8 @@ std::vector<ur::ExtrudedPolygon> OpenAIPReader::read(std::istream& fin) const
 	return polysOut;
 }
 
-double OpenAIPReader::referenceAlt2AbsAlt(const std::string& ref, const std::string& units, const double val,
-										  double pressureHpa)
+double ur::io::OpenAIPReader::referenceAlt2AbsAlt(const std::string& ref, const std::string& units, const double val,
+                                                  double pressureHpa)
 {
 	double out = 0;
 
