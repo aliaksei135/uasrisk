@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <omp.h>
+#include <cassert>
 
 #include <netcdf.h>
 #include <stdexcept>
@@ -57,6 +58,11 @@ void ur::VoxelGrid::add(const std::string& layerName, const FPScalar constValue)
 
 void ur::VoxelGrid::add(const std::string& layerName, const Matrix& data)
 {
+	const auto& size = data.dimensions();
+	assert(data.rank() == 3);
+	assert(size[0] == sizeX);
+	assert(size[1] == sizeY);
+	assert(size[2] == sizeZ);
 	layers.insert({layerName, data});
 }
 
