@@ -42,9 +42,9 @@ ur::VoxelGrid::VoxelGrid(const std::array<FPScalar, 6> bounds, const FPScalar xy
 	this->sizeX = yLength;
 	this->sizeY = xLength;
 
-	add("Blocked", 0);
-	add("Ground Risk", 0);
-	add("Air Risk", 0);
+	add("Blocked");
+	add("Ground Risk");
+	add("Air Risk");
 }
 
 ur::VoxelGrid::~VoxelGrid() = default;

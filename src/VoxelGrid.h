@@ -18,6 +18,13 @@ namespace ur
 	{
 		friend class VoxelGridBuilder;
 	public:
+		/**
+		 * \brief Create a voxel grid within the given bounds and resolution
+		 * \param bounds an array of bounding coordinates in the form: South, West, Bottom, North, East, Top
+		 * \param xyRes the lateral resolution in metres
+		 * \param zRes the vertical resolution in metres
+		 * \param worldSrs the world coordinate system, defaults to EPSG:4326 (WGS84)
+		 */
 		VoxelGrid(const std::array<FPScalar, 6> bounds, FPScalar xyRes, FPScalar zRes,
 		          const char* worldSrs = "EPSG:4326");
 
@@ -54,54 +61,122 @@ namespace ur
 
 		~VoxelGrid();
 
-		void add(const std::string& layerName, const FPScalar constValue);
+
+		/**
+		 * \brief Add a layer to the grid
+		 * \param layerName name of the layer
+		 * \param constValue a default value to fill the tensor with, defaults to 0
+		 */
+		void add(const std::string& layerName, const FPScalar constValue = 0);
+
+		/**
+		 * \brief Add a layer to the grid
+		 * \param layerName name of the layer
+		 * \param data predefined data set the tensor to, this must match the Voxel Grid dimensions
+		 */
 		void add(const std::string& layerName, const Matrix& data);
 
+
+		/**
+		 * \brief Return the value of the layer at a given index
+		 * \param layerName the layer name
+		 * \param idx the local indices to return
+		 * \return the value of the coeff
+		 */
 		FPScalar at(const std::string& layerName, const Index& idx) const;
+
+		/**
+		 * \brief Return an editable reference to the value of the layer at the given index
+		 * \param layerName the layer name
+		 * \param idx the local indices to return
+		 * \return a reference to the coeff at the indices
+		 */
 		FPScalar& at(const std::string& layerName, const Index& idx);
 
+
+		/**
+		 * \brief Return the value of the layer at the given world coordinates
+		 * \param layerName the layer name
+		 * \param pos the world coordinates to return
+		 * \return the value of the coeff
+		 */
 		FPScalar atPosition(const std::string& layerName, const Position& pos) const;
+
+		/**
+		 * \brief Return an editable reference to the value of the layer at the given world coordinates
+		 * \param layerName the layer name
+		 * \param pos the world coordinates to return
+		 * \return a reference to the coeff at the coordinates
+		 */
 		FPScalar& atPosition(const std::string& layerName, const Position& pos);
 
+
+		/**
+		 * \brief Return the entire tensor for a layer
+		 * \param layerName the layer name
+		 * \return the tensor of data 
+		 */
 		Matrix get(const std::string& layerName) const;
+		/**
+		 * \brief Return a reference to the entire tensor for a layer
+		 * \param layerName the layer name
+		 * \return a reference to the tensor
+		 */
 		Matrix& get(const std::string& layerName);
 
 
 		/**
-		 * @brief Reproject world (EPSG:4326) coordinates to local voxel indices
+		 * @brief Reproject world (EPSG:4326) coordinates to local indices
 		 * @param worldCoord the world coordinates to reproject
-		 * @return the voxel indices
+		 * @return the local indices
 		*/
 		Index world2Local(const Position& worldCoord) const;
+
+		/*
+		 * A per-component overload of above
+		 */
 		Index world2Local(FPScalar lat, FPScalar lon, FPScalar alt) const;
 
 		/**
-		 * @brief Test if the given voxel coord is within bounds
-		 * @param localCoord the coord to test
-		 * @return whether the coord is in bounds
+		 * @brief Test if the given local indices is within bounds
+		 * @param localCoord the indices to test
+		 * @return whether they are in bounds
 		*/
 		bool isInBounds(const Index& localCoord) const;
 
+
+		/**
+		 * \brief Write the risk layers to netCDF format for export.
+		 * \details This function uses the COARDS netCDF conventions for geospatial data without the time component.
+		 * This means the data can be displayed in external software such as Panoply.
+		 * \param path file path to write to
+		 */
 		void writeToNetCDF(const std::string& path) const;
 
-		ur::Size getSize() const
+
+		/**
+		 * \brief Return the lengths of the grid
+		 * \return x,y,z lengths
+		 */
+		Size getSize() const
 		{
 			return {sizeX, sizeY, sizeZ};
 		}
 
-		// int getGridIndex(unsigned int x, unsigned int y, unsigned int z) const;
-		// int getGridIndex(const Index& localCoord) const;
 
-		Position local2World(int x, int y, int z) const;
+		/**
+		 * \brief Reproject local indices to world coordinates
+		 * \param localCoord the local indices to reproject
+		 * \return the world coordinates
+		 */
 		Position local2World(const Index& localCoord) const;
 
-		// Eigen::Vector3d world2Proj(double lat, double lon, double alt) const;
-		// Eigen::Vector3d world2Proj(const Eigen::Vector3d& worldCoord) const;
-		//
-		// Eigen::Vector3d local2Proj(int x, int y, int z) const;
-		// Eigen::Vector3d local2Proj(const Eigen::Vector3i& localCoord) const;
+		/*
+		 * A per-component overload of above
+		 */
+		Position local2World(int x, int y, int z) const;
 
-		// protected:
+	protected:
 		int sizeX, sizeY, sizeZ;
 		FPScalar xyRes;
 		FPScalar zRes;
@@ -112,7 +187,6 @@ namespace ur
 		const char* projectionSrs;
 		PJ* reproj;
 		PJ_CONTEXT* projCtx;
-		// Voxel** grid;
 	};
 }
 #endif // VOXELGRID_H
