@@ -4,7 +4,6 @@
 #include "../TypeDefs.h"
 
 #include <vector>
-#include <Eigen/Dense>
 
 
 #define FEET2METRE 0.3048

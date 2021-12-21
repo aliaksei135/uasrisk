@@ -70,12 +70,12 @@ void ur::VoxelGridBuilder::handleBlockingPolygon(const ExtrudedPolygon& poly) co
 		}
 	}
 
-	const Eigen::Vector3d minCoord(minLat, minLon, poly.floor);
-	const Eigen::Vector3d maxCoord(maxLat, maxLon, poly.ceiling);
+	const Position minCoord(minLat, minLon, poly.floor);
+	const Position maxCoord(maxLat, maxLon, poly.ceiling);
 	const auto& gridMinCoord = grid->world2Local(minCoord);
 	const auto& gridMaxCoord = grid->world2Local(maxCoord);
 
-// #pragma omp parallel for collapse(3)
+	// #pragma omp parallel for collapse(3)
 	for (int x = gridMinCoord.x() - 1; x < gridMaxCoord.x() + 1; ++x)
 	{
 		for (int y = gridMinCoord.y() - 1; y < gridMaxCoord.y() + 1; ++y)
@@ -90,9 +90,8 @@ void ur::VoxelGridBuilder::handleBlockingPolygon(const ExtrudedPolygon& poly) co
 
 					if (within2D && withinZ)
 					{
-						const auto& idx = grid->getGridIndex(x, y, z);
-// #pragma omp critical
-						grid->blockedVals[idx] = true;
+						// #pragma omp critical
+						grid->at("Blocked", {x, y, z});
 					}
 				}
 			}
@@ -224,7 +223,7 @@ void ur::VoxelGridBuilder::handleTrajectory(const LineString& ls) const
 #endif
 }
 
-void ur::VoxelGridBuilder::handleVoxelCoord(const Eigen::Vector3i& coord) const
+void ur::VoxelGridBuilder::handleVoxelCoord(const Index& coord) const
 {
 	// Return if coord is outside of grid bounds
 	if (!grid->isInBounds(coord)) return;
@@ -232,5 +231,5 @@ void ur::VoxelGridBuilder::handleVoxelCoord(const Eigen::Vector3i& coord) const
 
 	// See if a voxel already exists, if so add to it, otherwise make a new one and insert it
 	// Add one aircraft per cell volume to the cell
-	grid->airRiskVals[grid->getGridIndex(coord)] += 1 / (grid->xyRes * grid->xyRes * grid->zRes);
+	grid->at("Air Risk", coord) += 1 / (grid->xyRes * grid->xyRes * grid->zRes);
 }

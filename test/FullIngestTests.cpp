@@ -9,7 +9,13 @@
 
 TEST(FullIngestTests, IngestTest)
 {
-	auto* vg = new ur::VoxelGrid(300, 300, 18, 250, 61, {-1.718725, 50.717606, 0});
+	const int resolution = 100;
+	const std::array<float, 6> xyzBounds{
+		50.9065510f, -1.4500237f, 1, 50.9517765f,
+		-1.3419628f, 250
+	};
+
+	auto* vg = new ur::VoxelGrid(xyzBounds, resolution, 61);
 	ur::VoxelGridBuilder vgb(vg);
 
 	const OpenSkyCsvReader osReader;
@@ -21,7 +27,5 @@ TEST(FullIngestTests, IngestTest)
 	vgb.handleTrajectory(trajs);
 	vgb.handleBlockingPolygon(airspaces);
 
-	const auto& m = vg->getMaxAirRisk();
-	std::cout << "Max: " << m << "\n";
 	vg->writeToNetCDF("test.nc");
 }

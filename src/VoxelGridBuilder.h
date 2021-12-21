@@ -18,7 +18,7 @@ namespace ur
 		void handleBlockingPolygon(const ExtrudedPolygon& poly) const;
 		void handleTrajectory(const std::vector<LineString>& lss) const;
 		void handleTrajectory(const LineString& ls) const;
-		void handleVoxelCoord(const Eigen::Vector3i& coord) const;
+		void handleVoxelCoord(const ur::Index& coord) const;
 
 		ur::VoxelGrid* grid;
 	};

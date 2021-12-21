@@ -13,19 +13,22 @@
 #include "uasgroundrisk/risk_analysis/aircraft/AircraftStateModel.h"
 #include "uasgroundrisk/risk_analysis/weather/WeatherMap.h"
 
-#include <Eigen/Dense>
 #include <omp.h>
 
 
 TEST(GroundRiskIntegrationTests, FullTest)
 {
-	const int resolution = 60;
-	const std::array<float, 4> bounds{
+	const int resolution = 100;
+	const std::array<float, 4> xyBounds{
 		50.9065510f, -1.4500237f, 50.9517765f,
 		-1.3419628f
 	};
+	const std::array<float, 6> xyzBounds{
+		50.9065510f, -1.4500237f, 1, 50.9517765f,
+		-1.3419628f, 250
+	};
 
-	auto* vg = new ur::VoxelGrid(120, 150, 12, 60, 60, {-1.4500237, 50.9065510, 5});
+	auto* vg = new ur::VoxelGrid(xyzBounds, resolution, 60);
 	ur::VoxelGridBuilder vgb(vg);
 
 	const OpenSkyCsvReader osReader;
@@ -39,19 +42,37 @@ TEST(GroundRiskIntegrationTests, FullTest)
 
 	ugr::risk::AircraftDescentModel descent{90, 2.8, 3.2, 28, 0.6 * 0.6, 0.8, 21, 15};
 
-	ugr::risk::WeatherMap weather(bounds, resolution);
+	ugr::risk::WeatherMap weather(xyBounds, resolution);
 	weather.addConstantWind(5, 220);
 	weather.eval();
 
-	ugr::mapping::PopulationMap population(bounds, resolution);
-	population.addOSMLayer("Residential", {{"landuse", "residential"}}, 10000);
+	ugr::mapping::PopulationMap population(xyBounds, resolution);
+	population.addOSMLayer("Residential", {{"leisure", "park"}}, 10000);
 	population.eval();
 
+	const static Eigen::IOFormat CSVFormat(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", "\n");
+
+	std::ofstream file(
+		"population_map.csv");
+	if (file.is_open())
+	{
+		file << population.get("Population Density").format(CSVFormat);
+		file.close();
+	}
+
 	const auto& vgSize = vg->getSize();
-	std::vector<double> alts;
+	std::vector<ur::FPScalar> alts;
 	alts.reserve(vgSize[2]);
 	for (int i = 0; i < vgSize[2]; ++i)
 		alts.emplace_back(vg->local2World(0, 0, i)[2]);
+
+	std::vector<ur::FPScalar> lons(vgSize[0]);
+	std::vector<ur::FPScalar> lats(vgSize[1]);
+	for (int i = 0; i < vgSize[0]; ++i)
+		lons[i] = vg->local2World(0, i, 0)[0];
+
+	for (int i = 0; i < vgSize[1]; ++i)
+		lats[i] = vg->local2World(i, 0, 0)[1];
 
 	for (int k = 0; k < alts.size(); ++k)
 	{
@@ -62,63 +83,61 @@ TEST(GroundRiskIntegrationTests, FullTest)
 		ugr::risk::RiskMap rm(population, descent, state, weather);
 		const auto& sm = rm.generateMap({ugr::risk::RiskType::STRIKE});
 		const auto& gsr = sm.get("Glide Strike Risk");
-		const auto& bsr = sm.get("Ballistic Strike Risk");
+		auto& bsr = sm.get("Ballistic Strike Risk");
+		bsr = bsr.array().isNaN().select(0, bsr).eval();
 		std::cout << "Risk for altitude: " << alts[k] << "\n";
 		std::cout << "Glide Risk max: " << gsr.maxCoeff() << "\n";
 		std::cout << "Ballistic Risk max: " << bsr.maxCoeff() << "\n";
 		std::cout << "Glide Risk mean: " << gsr.mean() << "\n";
 		std::cout << "Ballistic Risk mean: " << bsr.mean() << "\n";
+		ugr::gridmap::Matrix csr = (gsr + bsr);
 
-#pragma omp parallel for collapse(2)
+		std::ofstream file("strike_map_" + std::to_string(alts[k]) + ".csv");
+		if (file.is_open())
+		{
+			file << (gsr + bsr).format(CSVFormat);
+			file.close();
+		}
+
+		assert(vgSize[0] == rm.getSize()[0]);
+		assert(vgSize[1] == rm.getSize()[1]);
+		#pragma omp parallel for collapse(2)
 		for (int i = 0; i < vgSize[0]; ++i)
 		{
 			for (int j = 0; j < vgSize[1]; ++j)
 			{
-				const auto& idx = vg->getGridIndex(i, j, k);
-				const auto& worldCoord = vg->local2World(i, j, k);
-				const ugr::gridmap::Position pos(worldCoord[0], worldCoord[1]);
-				const ugr::gridmap::Index& rmIdx = rm.world2Local(pos);
-				if (rm.isInBounds(rmIdx))
-				{
-					auto& brisk = rm.at("Ballistic Strike Risk", rmIdx);
-					if (isnan(brisk))
-						brisk = 0;
-					const auto& grisk = rm.at("Glide Strike Risk", rmIdx);
-					// std::cout << "B: " << brisk << " G: " << grisk << "\n";
+				auto val = csr(i, j);
+				if (isnan(val) || val < 0)
+					val = 0;
 #pragma omp critical
-					vg->groundRiskVals[idx] = brisk + grisk;
-				}
+				vg->at("Ground Risk", {i, j, k}) = val;
+
+				// const auto& worldCoord = vg->local2World(i, j, k);
+				// const ugr::gridmap::Position pos(worldCoord[0], worldCoord[1]);
+				// const ugr::gridmap::Index& rmIdx = rm.world2Local(pos);
+				// if (rm.isInBounds(rmIdx))
+				// {
+				// 	auto& brisk = rm.at("Ballistic Strike Risk", rmIdx);
+				// 	if (isnan(brisk))
+				// 		brisk = 0;
+				// 	const auto& grisk = rm.at("Glide Strike Risk", rmIdx);
+				// 	// std::cout << "B: " << brisk << " G: " << grisk << "\n";
+				// 	// #pragma omp critical
+				// 	vg->at("Ground Risk", {i, j, k}) = brisk + grisk;
+				// }
 			}
 		}
 	}
 
-	// for (int i = 0; i < vgSize[0]; ++i)
-	// {
-	// 	for (int j = 0; j < vgSize[1]; ++j)
-	// 	{
-	// 		for (int k = 0; k < vgSize[2]; ++k)
-	// 		{
-	// 			const auto& idx = vg->getGridIndex(i, j, k);
-	// 			const auto& worldCoord = vg->local2World(i, j, k);
-	// 			const ugr::gridmap::Position pos(worldCoord[0], worldCoord[1]);;
-	// 			const auto& rm = altRiskMaps.at(worldCoord[2]);
-	// 			const auto& brisk = rm.atPosition("Ballistic Strike Risk", pos);
-	// 			const auto& grisk = rm.atPosition("Glide Strike Risk", pos);
-	// 			vg->groundRiskVals[idx] = brisk + grisk;
-	// 		}
-	// 	}
-	// }
-
 	std::cout << "All Finished!\n";
 
-	const auto& mar = vg->getMaxAirRisk();
+	const auto& mar = vg->get("Air Risk").maximum();
 	std::cout << "Max Air Risk: " << mar << "\n";
-	const auto& mgr = vg->getMaxGroundRisk();
+	const auto& mgr = vg->get("Ground Risk").maximum();
 	std::cout << "Max Ground Risk: " << mgr << "\n";
-	const auto& aar = std::accumulate(vg->airRiskVals.begin(), vg->airRiskVals.end(), 0.0) / vg->airRiskVals.size();
+	const auto& aar = vg->get("Air Risk").mean();
 	std::cout << "Mean Air Risk: " << aar << "\n";
-	const auto& agr = std::accumulate(vg->groundRiskVals.begin(), vg->groundRiskVals.end(), 0.0) / vg->groundRiskVals.
-		size();
+	const auto& agr = vg->get("Ground Risk").mean();
 	std::cout << "Mean Ground Risk: " << agr << "\n";
 
 	vg->writeToNetCDF("CombinedVoxelGrid.nc");

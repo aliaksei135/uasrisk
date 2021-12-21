@@ -11,11 +11,11 @@ class Bresenham3D
 {
 public:
 	template <typename T = int_fast32_t>
-	static std::vector<Eigen::Vector3i, Eigen::aligned_allocator<int>> line3d(
-		const Eigen::Vector3i& start, const Eigen::Vector3i& end)
+	static std::vector<ur::Index, Eigen::aligned_allocator<int>> line3d(
+		const ur::Index& start, const ur::Index& end)
 	{
 		// Collect results here
-		std::vector<Eigen::Vector3i, Eigen::aligned_allocator<int>> out;
+		std::vector<ur::Index, Eigen::aligned_allocator<int>> out;
 
 		// Split out values for readability
 		T x0 = start[0];
