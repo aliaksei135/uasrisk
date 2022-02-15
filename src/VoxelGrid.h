@@ -135,7 +135,7 @@ namespace ur
 		/*
 		 * A per-component overload of above
 		 */
-		Index world2Local(FPScalar lat, FPScalar lon, FPScalar alt) const;
+		Index world2Local(FPScalar lon, FPScalar lat, FPScalar alt) const;
 
 		/**
 		 * @brief Test if the given local indices is within bounds
