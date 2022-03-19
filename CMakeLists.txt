@@ -73,7 +73,6 @@ set(UR_SOURCES
         ${UR_SOURCES})
 
 add_subdirectory(src)
-include_directories(include)
 
 if (MSVC)
     set(${PROJECT_NAME}_BUILD_SHARED OFF)
@@ -86,6 +85,13 @@ if (${${PROJECT_NAME}_BUILD_SHARED})
 else ()
     add_library(${PROJECT_NAME} STATIC ${UR_SOURCES})
 endif ()
+
+target_include_directories(${PROJECT_NAME}
+	PUBLIC
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include/>)
+
+add_subdirectory(include)
 
 if (MSVC)
     # Prevent Windows.h overwriting min and max with macros

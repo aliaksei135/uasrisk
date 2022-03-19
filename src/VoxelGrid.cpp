@@ -1,4 +1,4 @@
-#include "VoxelGrid.h"
+#include "uasrisk/environment/VoxelGrid.h"
 
 #include <algorithm>
 #include <fstream>

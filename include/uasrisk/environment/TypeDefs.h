@@ -1,6 +1,6 @@
 #ifndef UR_TYPEDEFS_H
 #define UR_TYPEDEFS_H
-#include <Eigen/Dense>
+
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include <boost/geometry.hpp>

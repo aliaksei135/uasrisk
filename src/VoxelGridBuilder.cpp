@@ -1,6 +1,6 @@
-#include "VoxelGridBuilder.h"
+#include "uasrisk/environment/VoxelGridBuilder.h"
 
-#include "VoxelGrid.h"
+#include "uasrisk/environment/VoxelGrid.h"
 #include <numeric>
 
 #include "Bresenham3D.h"

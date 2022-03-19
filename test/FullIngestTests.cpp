@@ -9,17 +9,17 @@
 
 TEST(FullIngestTests, IngestTest)
 {
-	const int resolution = 100;
+	const int resolution = 250;
 	const std::array<float, 6> xyzBounds{
-		50.9065510f, -1.4500237f, 1, 50.9517765f,
-		-1.3419628f, 250
+		50.717606f, -1.718725f, 0, 51.0f,
+		-1.1f, 250
 	};
 
 	auto* vg = new ur::VoxelGrid(xyzBounds, resolution, 61);
 	ur::VoxelGridBuilder vgb(vg);
 
 	const ur::io::OpenSkyCsvReader osReader;
-	const auto trajs = osReader.readFile("opensky_states.csv");
+	const auto trajs = osReader.readFile("states.csv");
 
 	const ur::io::OpenAIPReader oaReader;
 	const auto airspaces = oaReader.readFile("openaip_airspace_uk.aip");

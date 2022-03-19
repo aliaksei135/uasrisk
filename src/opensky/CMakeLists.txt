@@ -1,7 +1,6 @@
 set(UR_SOURCES
 	${UR_SOURCES}
 	${CMAKE_CURRENT_LIST_DIR}/OpenSkyReader.cpp 
-	${CMAKE_CURRENT_LIST_DIR}/OpenSkyReader.h 
-	${CMAKE_CURRENT_LIST_DIR}/OpenSkyCsvReader.h 
-	${CMAKE_CURRENT_LIST_DIR}/OpenSkyJsonReader.h
+	${CMAKE_CURRENT_LIST_DIR}/OpenSkyJsonReader.cpp 
+	${CMAKE_CURRENT_LIST_DIR}/OpenSkyCsvReader.cpp 
 	PARENT_SCOPE)
