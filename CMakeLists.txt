@@ -26,6 +26,8 @@ if (CCACHE)
     set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE})
 endif ()
 
+option(UR_BUILD_PYTHON_BINDINGS "Build the Python bindings for uasrisk" ON)
+
 ###########################################################
 # Static code analysis
 ###########################################################
@@ -113,6 +115,19 @@ if (NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
             TLS_VERIFY ON)
 endif ()
 include(${CMAKE_BINARY_DIR}/conan.cmake)
+
+execute_process(COMMAND where conan
+                    OUTPUT_VARIABLE CONAN_LOC)
+message("CONAN LOC " ${CONAN_LOC})
+
+execute_process(COMMAND conan --version
+                    RESULT_VARIABLE return_code
+                    OUTPUT_VARIABLE CONAN_VERSION_OUTPUT
+                    ERROR_VARIABLE CONAN_VERSION_OUTPUT)
+
+message("CONAN RETURN CODE "${return_code})
+message("CONAN VERSION OUTPUT "${CONAN_VERSION_OUTPUT})
+
 conan_cmake_run(CONANFILE conanfile.txt
         BASIC_SETUP
         BUILD missing)
@@ -164,6 +179,10 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(uasgroundrisk)
 target_link_libraries(${PROJECT_NAME} PRIVATE uasgroundrisk)
 
+if(UR_BUILD_PYTHON_BINDINGS)
+    add_subdirectory(extern/pybind11)
+    add_subdirectory(python)
+endif()
 
 ##############################################################
 # Testing

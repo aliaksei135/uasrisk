@@ -1,11 +1,12 @@
-#include "../src/VoxelGrid.h"
-#include "../src/VoxelGridBuilder.h"
-#include "../src/opensky/OpenSkyCsvReader.h"
-#include "../src/opensky/OpenSkyReader.h"
-#include "../src/openaip/OpenAIPReader.h"
+
 #include <gtest/gtest.h>
 
 #include <iostream>
+
+#include "uasrisk/air/io/openaip/OpenAIPReader.h"
+#include "uasrisk/air/io/opensky/OpenSkyCsvReader.h"
+#include "uasrisk/environment/VoxelGrid.h"
+#include "uasrisk/environment/VoxelGridBuilder.h"
 
 TEST(FullIngestTests, IngestTest)
 {

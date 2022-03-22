@@ -1,7 +1,7 @@
 #include <istream>
 
-#include "OpenAIPReader.h"
-#include "../TypeDefs.h"
+#include "uasrisk/environment/TypeDefs.h"
+#include "uasrisk/air/io/openaip/OpenAIPReader.h"
 
 #include <vector>
 

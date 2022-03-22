@@ -511,3 +511,9 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+#Scikit-build dir
+_skbuild/
+
+#Python packaging
+*.egg-info

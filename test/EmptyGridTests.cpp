@@ -1,8 +1,8 @@
 #include <fstream>
 
-#include "../src/VoxelGrid.h"
-
 #include <gtest/gtest.h>
+
+#include "uasrisk/environment/VoxelGrid.h"
 
 TEST(EmptyGridTest1, EmptyGridTests)
 {
