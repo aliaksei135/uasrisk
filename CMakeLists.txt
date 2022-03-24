@@ -116,18 +116,6 @@ if (NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
 endif ()
 include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-execute_process(COMMAND where conan
-                    OUTPUT_VARIABLE CONAN_LOC)
-message("CONAN LOC " ${CONAN_LOC})
-
-execute_process(COMMAND conan --version
-                    RESULT_VARIABLE return_code
-                    OUTPUT_VARIABLE CONAN_VERSION_OUTPUT
-                    ERROR_VARIABLE CONAN_VERSION_OUTPUT)
-
-message("CONAN RETURN CODE "${return_code})
-message("CONAN VERSION OUTPUT "${CONAN_VERSION_OUTPUT})
-
 conan_cmake_run(CONANFILE conanfile.txt
         BASIC_SETUP
         BUILD missing)

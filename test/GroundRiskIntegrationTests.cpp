@@ -17,6 +17,8 @@
 
 #include "uasgroundrisk/map_gen/TemporalPopulationMap.h"
 
+#include "uasrisk/ground/GroundRiskVoxelGrid.h"
+
 
 TEST(GroundRiskIntegrationTests, FullTest)
 {
@@ -37,6 +39,8 @@ TEST(GroundRiskIntegrationTests, FullTest)
     aircraft.mass = 50;
     aircraft.length = 5;
     aircraft.width = 5;
+    aircraft.state.position << 0, 0, 0;
+    aircraft.state.velocity << 20, 20, 1;
 
     aircraft.addDescentModel<ugr::risk::GlideDescentModel>(21, 15);
     aircraft.addDescentModel<ugr::risk::BallisticDescentModel>(0.6 * 0.6, 0.8);
@@ -58,17 +62,26 @@ TEST(GroundRiskIntegrationTests, FullTest)
     obstacleMap.addBuildingHeights();
     obstacleMap.eval();
 
+    // ur::GroundRiskVoxelGrid grvg(xyzBounds, xyRes, zRes, "EPSG:4326", population, aircraft, obstacleMap, weather);
+    // grvg.eval();
+    //
+    // std::cout << grvg.getSize();
+    // grvg.writeToNetCDF("GRVG Test.nc");
+    //
+    // return;
+
+
     auto* vg = new ur::VoxelGrid(xyzBounds, xyRes, zRes);
     ur::VoxelGridBuilder vgb(vg);
 
-    const ur::io::OpenSkyCsvReader osReader;
-    const auto trajs = osReader.readFile("states.csv");
-
-    const ur::io::OpenAIPReader oaReader;
-    const auto airspaces = oaReader.readFile("openaip_airspace_uk.aip");
-
-    vgb.handleTrajectory(trajs);
-    vgb.handleBlockingPolygon(airspaces);
+    // const ur::io::OpenSkyCsvReader osReader;
+    // const auto trajs = osReader.readFile("states.csv");
+    //
+    // const ur::io::OpenAIPReader oaReader;
+    // const auto airspaces = oaReader.readFile("openaip_airspace_uk.aip");
+    //
+    // vgb.handleTrajectory(trajs);
+    // vgb.handleBlockingPolygon(airspaces);
 
     const static IOFormat CSVFormat(FullPrecision, DontAlignCols, ", ", "\n");
 
@@ -110,6 +123,7 @@ TEST(GroundRiskIntegrationTests, FullTest)
         // std::cout << "Glide Risk mean: " << gsr.mean() << "\n";
         // std::cout << "Ballistic Risk mean: " << bsr.mean() << "\n";
         const auto& fatalityRisk = rm.get("Fatality Risk");
+
 
 
         // std::cout << fatalityRisk << " max " << std::scientific << fatalityRisk.maxCoeff()
