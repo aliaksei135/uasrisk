@@ -165,7 +165,7 @@ FetchContent_Declare(
         GIT_TAG origin/master
 )
 FetchContent_MakeAvailable(uasgroundrisk)
-target_link_libraries(${PROJECT_NAME} PRIVATE uasgroundrisk)
+target_link_libraries(${PROJECT_NAME} PUBLIC uasgroundrisk)
 
 if(UR_BUILD_PYTHON_BINDINGS)
     add_subdirectory(extern/pybind11)

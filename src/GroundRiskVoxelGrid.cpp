@@ -3,10 +3,10 @@
 
 ur::GroundRiskVoxelGrid::GroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, const ur::FPScalar xyRes,
                                              const ur::FPScalar zRes, const char* const worldSrs,
-                                             ugr::mapping::PopulationMap& populationMap,
-                                             ugr::risk::AircraftModel& aircraftModel,
-                                             const ugr::risk::ObstacleMap& obstacleMap,
-                                             const ugr::risk::WeatherMap& weather):
+                                             ugr::mapping::PopulationMap* populationMap,
+                                             ugr::risk::AircraftModel* aircraftModel,
+                                             ugr::risk::ObstacleMap* obstacleMap,
+                                             ugr::risk::WeatherMap* weather):
     VoxelGrid(bounds, xyRes, zRes, worldSrs), populationMap(populationMap), aircraftModel(aircraftModel),
     obstacleMap(obstacleMap), weatherMap(weather)
 {
@@ -30,9 +30,9 @@ void ur::GroundRiskVoxelGrid::eval()
         // ugr::risk::AircraftModel localAircraftModel(aircraftModel);
 
         // Create a riskmap object 
-        ugr::risk::RiskMap altRiskMap(populationMap, aircraftModel, obstacleMap, weatherMap);
+        ugr::risk::RiskMap altRiskMap(*populationMap, *aircraftModel, *obstacleMap, *weatherMap);
         // Set the state altitude to the altitude of this layer
-        aircraftModel.state.position(2) = altitude;
+        aircraftModel->state.position(2) = altitude;
         //TODO Allow propogation of heading
         // Set any heading for now
         altRiskMap.SetAnyHeading(true);

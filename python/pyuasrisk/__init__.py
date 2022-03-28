@@ -1,1 +1,1 @@
-from .pyuasrisk import VoxelGrid, hello, __doc__
+from .pyuasrisk import VoxelGrid, hello, __doc__, GroundRiskVoxelGrid

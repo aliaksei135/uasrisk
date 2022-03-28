@@ -517,3 +517,4 @@ _skbuild/
 
 #Python packaging
 *.egg-info
+*.whl

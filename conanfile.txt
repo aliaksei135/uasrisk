@@ -1,7 +1,7 @@
 [requires]
 eigen/[>3.3.9]
 netcdf/4.7.4
-proj/8.0.1
+proj/8.2.1
 libcurl/7.79.1
 boost/1.77.0
 rapidjson/cci.20211112

@@ -14,8 +14,10 @@ endif()
 
 pybind11_add_module(pyuasrisk 
     MODULE
-    ${CMAKE_CURRENT_LIST_DIR}/PyVoxelGrid.cpp)
+    ${CMAKE_CURRENT_LIST_DIR}/Bindings.cpp
+    )
 
 target_link_libraries(pyuasrisk PRIVATE uasrisk)
+target_link_libraries(pyuasrisk PRIVATE uasgroundrisk)
 
 install(TARGETS pyuasrisk DESTINATION .)
