@@ -7,6 +7,7 @@
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
+#include <pybind11_eigen_tensor.h>
 
 #include "uasgroundrisk/map_gen/TemporalPopulationMap.h"
 

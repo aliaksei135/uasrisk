@@ -1,5 +1,4 @@
 
-
 if(SKBUILD)
   # Scikit-Build does not add your site-packages to the search path
   # automatically, so we need to add it _or_ the pybind11 specific directory
@@ -16,6 +15,17 @@ pybind11_add_module(pyuasrisk
     MODULE
     ${CMAKE_CURRENT_LIST_DIR}/Bindings.cpp
     )
+
+FetchContent_Declare(
+    pybind11_tensor
+    GIT_REPOSITORY https://github.com/MattiasFredriksson/pybind11_tensor.git
+    GIT_TAG origin/main
+)
+FetchContent_GetProperties(pybind11_tensor)
+if(NOT pybind11_tensor_POPULATED)
+    FetchContent_Populate(pybind11_tensor)
+    target_include_directories(pyuasrisk PRIVATE ${pybind11_tensor_SOURCE_DIR}/include)
+endif()
 
 target_link_libraries(pyuasrisk PRIVATE uasrisk)
 target_link_libraries(pyuasrisk PRIVATE uasgroundrisk)
