@@ -18,7 +18,6 @@ void hello()
 {
 	std::cout << "Hello, World!" << std::endl;
 }
-
 //TODO Replace with actual bindings
 class PyAircraftModel : public ugr::risk::AircraftModel
 {
@@ -40,9 +39,9 @@ public:
 	                      ur::FPScalar zRes/*, ugr::risk::AircraftModel& aircraftModel*/): GroundRiskVoxelGrid(
 		bounds, xyRes, zRes, "EPSG:4326",
 		new ugr::mapping::TemporalPopulationMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
-		PyAircraftModel(50, 5, 5),
-		ugr::risk::ObstacleMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
-		ugr::risk::WeatherMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes))
+		new PyAircraftModel(50, 5, 5),
+		new ugr::risk::ObstacleMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
+		new ugr::risk::WeatherMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes))
 	{
 	}
 
