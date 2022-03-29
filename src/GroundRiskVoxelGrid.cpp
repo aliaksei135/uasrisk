@@ -18,13 +18,13 @@ void ur::GroundRiskVoxelGrid::eval()
     add("Ground Fatality Risk", 0);
 
 
-    auto groundStrikeRiskTensor = get("Ground Strike Risk");
-    auto groundFatalityRiskTensor = get("Ground Fatality Risk");
+    auto& groundStrikeRiskTensor = get("Ground Strike Risk");
+    auto& groundFatalityRiskTensor = get("Ground Fatality Risk");
 
-    for (int i = 0; i < sizeZ; ++i)
+    for (int z = 0; z < sizeZ; ++z)
     {
         // Get the altitude value for this layer
-        const auto altitude = local2World(0, 0, i)[2];
+        const auto altitude = local2World(0, 0, z)[2];
 
         // Create a thread local aircraft model as we modify the altitude on it
         // ugr::risk::AircraftModel localAircraftModel(aircraftModel);
@@ -40,8 +40,8 @@ void ur::GroundRiskVoxelGrid::eval()
         altRiskMap.eval();
 
         // At this point, altRiskMap should have 2 layers we want to propogate to the voxel grid: "Strike Risk" and "Fatality Risk"
-        const auto strikeRiskMat = altRiskMap.get("Strike Risk");
-        const auto fatalityRiskMat = altRiskMap.get("Fatality Risk");
+        const auto& strikeRiskMat = altRiskMap.get("Strike Risk");
+        const auto& fatalityRiskMat = altRiskMap.get("Fatality Risk");
 
         // auto strikeRisk2Tensor = Eigen::TensorMap<const Eigen::Tensor<const ur::FPScalar, 2>>(strikeRiskMat.data(), sizeX, sizeY);
 
@@ -52,13 +52,39 @@ void ur::GroundRiskVoxelGrid::eval()
                "Ground Risk RiskMap and GroundRiskVoxelGrid have incompatible layer shapes");
 
         // Insert the layers into the tensor
-        groundStrikeRiskTensor.chip(i, 2) = Eigen::TensorMap<const Eigen::Tensor<const ur::FPScalar, 2>>(
-            strikeRiskMat.data(), sizeX, sizeY);
-        groundFatalityRiskTensor.chip(i, 2) = Eigen::TensorMap<const Eigen::Tensor<const ur::FPScalar, 2>>(
-            fatalityRiskMat.data(), sizeX, sizeY);
+        // groundStrikeRiskTensor.chip(z, 2) = Eigen::TensorMap<const Eigen::Tensor<const ur::FPScalar, 2>>(
+        //     strikeRiskMat.data(), sizeX, sizeY);
+        // groundFatalityRiskTensor.chip(z, 2) = Eigen::TensorMap<const Eigen::Tensor<const ur::FPScalar, 2>>(
+        //     fatalityRiskMat.data(), sizeX, sizeY);
 
-        std::cout<< strikeRiskMat.sum();
+        for (int x = 0; x < sizeX; ++x)
+        {
+            for (int y = 0; y < sizeY; ++y)
+            {
+                const auto sr = strikeRiskMat(x, y);
+                const auto fr = fatalityRiskMat(x, y);
+                if (!isnan(sr))
+                    groundStrikeRiskTensor(x, y, z) = sr;
+                if (!isnan(fr))
+                    groundFatalityRiskTensor(x, y, z) = fr;
+                // const auto psr = groundStrikeRiskTensor(x, y, z);
+                // const auto pfr = groundFatalityRiskTensor(x, y, z);
+                // if (psr != sr || pfr != fr)
+                // {
+                //     std::cout << "NE\n";
+                // }
+            }
+        }
+
+        std::cout << "Mat Sum: " << strikeRiskMat.array().isNaN().select(0, strikeRiskMat).sum();
+        std::cout << " Mat Avg: " << strikeRiskMat.array().isNaN().select(0, strikeRiskMat).mean();
+        std::cout << " Strike Tensor Sum: " << groundStrikeRiskTensor.sum();
+        std::cout << " Strike Tensor Avg: " << groundStrikeRiskTensor.mean();
+        std::cout << " Fatality Tensor Sum: " << groundFatalityRiskTensor.sum();
+        std::cout << " Fatality Tensor Avg: " << groundFatalityRiskTensor.mean();
+        std::cout << "--------------------------\n";
     }
 
-    add("Ground Risk", groundFatalityRiskTensor);
+    add("Ground Risk", 0);
+    get("Ground Risk") = groundFatalityRiskTensor;
 }
