@@ -15,21 +15,27 @@ namespace py = pybind11;
 template <typename... Args>
 using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 
-void hello()
-{
-	std::cout << "Hello, World!" << std::endl;
-}
-//TODO Replace with actual bindings
 class PyAircraftModel : public ugr::risk::AircraftModel
 {
 public:
 	PyAircraftModel(const double mass, const double width, const double length)
 		: AircraftModel(mass, width, length)
 	{
-		addDescentModel<ugr::risk::GlideDescentModel>(21, 15);
-		addDescentModel<ugr::risk::BallisticDescentModel>(0.6 * 0.6, 0.8);
-		state.position << 0, 0, 50;
-		state.velocity << 20, 20, 1;
+	}
+
+	void addGlideDescentModel(double glideAirspeed, double glideRatio)
+	{
+		addDescentModel<ugr::risk::GlideDescentModel>(glideAirspeed, glideRatio);
+	}
+
+	void addBallisticDescentModel(double ballisticFrontalArea, double ballisticDragCoeff)
+	{
+		addDescentModel<ugr::risk::BallisticDescentModel>(ballisticFrontalArea, ballisticDragCoeff);
+	}
+
+	void addParachuteDescentModel(double parachuteDragCoeff, double parachuteArea, double parachuteDeployTime)
+	{
+		addDescentModel<ugr::risk::ParachuteDescentModel>(parachuteDragCoeff, parachuteArea, parachuteDeployTime);
 	}
 };
 
@@ -37,10 +43,10 @@ class PyGroundRiskVoxelGrid : public ur::GroundRiskVoxelGrid
 {
 public:
 	PyGroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, ur::FPScalar xyRes,
-	                      ur::FPScalar zRes/*, ugr::risk::AircraftModel& aircraftModel*/): GroundRiskVoxelGrid(
+	                      ur::FPScalar zRes, ugr::risk::AircraftModel& aircraftModel): GroundRiskVoxelGrid(
 		bounds, xyRes, zRes, "EPSG:4326",
 		new ugr::mapping::TemporalPopulationMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
-		new PyAircraftModel(50, 5, 5),
+		&aircraftModel,
 		new ugr::risk::ObstacleMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
 		new ugr::risk::WeatherMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes))
 	{
@@ -53,8 +59,6 @@ PYBIND11_MODULE(pyuasrisk, topModule)
 {
 	topModule.doc() = "Risk estimation for uncrewed aerial systems";
 	topModule.attr("__version__") = "0.0.1"; //TODO grab from CMake defines
-
-	topModule.def("hello", &hello, "Prints \"Hello, World!\"");
 
 	// auto voxelGridModule = topModule.def_submodule("environment");
 	py::class_<ur::VoxelGrid>(topModule, "VoxelGrid")
@@ -85,15 +89,39 @@ PYBIND11_MODULE(pyuasrisk, topModule)
 		.def("isInBounds", &ur::VoxelGrid::isInBounds, "Test if the given local indices is within bounds")
 		.def("writeToNetCDF", &ur::VoxelGrid::writeToNetCDF, "Write the risk layers to netCDF format for export.")
 		.def_property_readonly("size", &ur::VoxelGrid::getSize, "Return the lengths of the grid")
+		.def_property_readonly("layers", &ur::VoxelGrid::getLayers, "Return the layers in the map")
 		.def("local2World", overload_cast_<const ur::Index&>()(&ur::VoxelGrid::local2World, py::const_),
 		     "Reproject local indices to world coordinates")
 		.def("local2World", overload_cast_<int, int, int>()(&ur::VoxelGrid::local2World, py::const_),
 		     "Reproject local indices to world coordinates");
 
-	// py::class_<PyAircraftModel>(topModule, "AircraftModel")
-	// 	.def(py::init<const double, const double, const double>(), py::return_value_policy::reference);
+	py::class_<PyAircraftModel>(topModule, "AircraftModel")
+		.def(py::init<const double, const double, const double>(), py::return_value_policy::reference);
+
+	py::class_<ugr::risk::AircraftStateModel>(topModule, "AircraftStateModel")
+		.def(py::init<>())
+		.def_readwrite("position", &ugr::risk::AircraftStateModel::position, "Aircraft Position")
+		.def_readwrite("velocity", &ugr::risk::AircraftStateModel::velocity, "Aircraft Velocity");
+
+	py::class_<PyAircraftModel>(topModule, "AircraftModel")
+		.def(py::init<double, double, double>())
+		.def_readonly("mass", &ugr::risk::AircraftModel::mass, "Aircraft Mass")
+		.def_readonly("length", &ugr::risk::AircraftModel::length, "Aircraft Length")
+		.def_readonly("width", &ugr::risk::AircraftModel::width, "Aircraft Width")
+		.def_readwrite("state", &ugr::risk::AircraftModel::state, "Aircraft State")
+		.def("addGlideDescentModel", &PyAircraftModel::addGlideDescentModel, "Add glide descent model")
+		.def("addBallisticDescentModel", &PyAircraftModel::addBallisticDescentModel, "Add ballistic descent model")
+		.def("addParachuteDescentModel", &PyAircraftModel::addParachuteDescentModel, "Add parachute descent model");
 
 	py::class_<PyGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "GroundRiskVoxelGrid")
-		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar/*, ugr::risk::AircraftModel*/>())
+		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, ugr::risk::AircraftModel>())
 		.def("eval", &ur::GroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
+
+	py::class_<ugr::mapping::PopulationMap>(topModule, "PopulationMap")
+		.def(py::init<const std::array<float, 4>, int>())
+		.def("eval", &ugr::mapping::PopulationMap::eval, "Evaluate the population map");
+
+	py::class_<ugr::mapping::TemporalPopulationMap, ugr::mapping::PopulationMap>(topModule, "TemporalPopulationMap")
+		.def("setHourOfDay", &ugr::mapping::TemporalPopulationMap::setHourOfDay,
+		     "Set the Hour of Day for the underlying population model");
 }
