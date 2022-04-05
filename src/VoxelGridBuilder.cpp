@@ -1,4 +1,4 @@
-#include "uasrisk/environment/VoxelGridBuilder.h"
+#include "VoxelGridBuilder.h"
 
 #include "uasrisk/environment/VoxelGrid.h"
 #include <numeric>

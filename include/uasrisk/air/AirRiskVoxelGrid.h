@@ -8,7 +8,7 @@ namespace ur
 	{
 	public:
 		AirRiskVoxelGrid(const std::array<FPScalar, 6>& bounds, const FPScalar xyRes, const FPScalar zRes,
-		                 std::string& trajPath, std::string& airspacePath);
+		                 std::string trajPath, std::string airspacePath);
 
 		void eval();
 

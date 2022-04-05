@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <uasrisk/environment/VoxelGrid.h>
-#include <uasrisk/environment/VoxelGridBuilder.h>
+#include <../src/VoxelGridBuilder.h>
 #include <uasrisk/air/io/openaip/OpenAIPReader.h>
 #include <uasrisk/air/io/opensky/OpenSkyCsvReader.h>
 
@@ -18,37 +18,7 @@
 #include "uasgroundrisk/map_gen/TemporalPopulationMap.h"
 
 #include "uasrisk/ground/GroundRiskVoxelGrid.h"
-
-//TODO Replace with actual bindings
-class PyAircraftModel : public ugr::risk::AircraftModel
-{
-public:
-	PyAircraftModel(const double mass, const double width, const double length)
-		: AircraftModel(mass, width, length)
-	{
-		addDescentModel<ugr::risk::GlideDescentModel>(21, 15);
-		addDescentModel<ugr::risk::BallisticDescentModel>(0.6 * 0.6, 0.8);
-		state.position << 0, 0, 50;
-		state.velocity << 20, 20, 1;
-	}
-};
-
-class PyGroundRiskVoxelGrid : public ur::GroundRiskVoxelGrid
-{
-public:
-	PyGroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, ur::FPScalar xyRes,
-	                      ur::FPScalar zRes/*, ugr::risk::AircraftModel& aircraftModel*/): GroundRiskVoxelGrid(
-		bounds, xyRes, zRes, "EPSG:4326",
-		// TODO: This is a pretty grim memory leak
-		new ugr::mapping::TemporalPopulationMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
-		new PyAircraftModel(50, 5, 5),
-		new ugr::risk::ObstacleMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
-		new ugr::risk::WeatherMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes))
-	{
-	}
-
-	using ur::GroundRiskVoxelGrid::eval;
-};
+#include "uasrisk/air/AirRiskVoxelGrid.h"
 
 TEST(GroundRiskIntegrationTests, FullTest)
 {
@@ -87,21 +57,18 @@ TEST(GroundRiskIntegrationTests, FullTest)
 	ugr::mapping::TemporalPopulationMap population(xyBounds, xyRes);
 	population.setHourOfDay(12);
 	population.eval();
-	//
-	// ugr::risk::ObstacleMap obstacleMap(xyBounds, xyRes);
-	// obstacleMap.addBuildingHeights();
-	// obstacleMap.eval();
+	
+	ugr::risk::ObstacleMap obstacleMap(xyBounds, xyRes);
+	obstacleMap.addBuildingHeights();
+	obstacleMap.eval();
 
-	PyGroundRiskVoxelGrid pvg(xyzBounds, xyRes, zRes);
-	pvg.eval();
-
-	// ur::GroundRiskVoxelGrid grvg(xyzBounds, xyRes, zRes, "EPSG:4326", population, aircraft, obstacleMap, weather);
-	// grvg.eval();
-	//
-	// std::cout << grvg.getSize();
-	// grvg.writeToNetCDF("GRVG Test.nc");
-	//
-	// return;
+	ur::GroundRiskVoxelGrid grvg(xyzBounds, xyRes, zRes, "EPSG:4326", &population, &aircraft, &obstacleMap, &weather);
+	grvg.eval();
+	
+	std::cout << grvg.getSize();
+	grvg.writeToNetCDF("GRVG Test.nc");
+	
+	return;
 
 
 	// 	auto* vg = new ur::VoxelGrid(xyzBounds, xyRes, zRes);
