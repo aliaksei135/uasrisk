@@ -19,11 +19,7 @@ namespace ur
 		public:
 			explicit OpenAIPReader() = default;
 
-			std::vector<ur::ExtrudedPolygon> readFile(const std::string& file) const
-			{
-				std::ifstream fileStream(file.c_str(), std::ios_base::in | std::ios_base::binary);
-				return read(fileStream);
-			}
+			std::vector<ur::ExtrudedPolygon> readFile(const std::string& file) const;
 
 			std::vector<ur::ExtrudedPolygon> read(std::istream& fin) const;
 

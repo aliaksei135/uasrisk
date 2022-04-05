@@ -15,6 +15,10 @@ std::vector<ur::LineString> ur::io::OpenSkyReader::readFile(const std::string& f
 {
     std::ifstream fileStream(file.c_str(), std::ios_base::in | std::ios_base::binary);
     auto open = fileStream.is_open();
+    if(!open)
+    {
+	    throw std::ios_base::failure("Opensky data file not found");
+    }
     return read(fileStream);
 }
 

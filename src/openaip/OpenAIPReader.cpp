@@ -11,6 +11,17 @@
 using namespace pugi;
 using namespace boost::algorithm;
 
+std::vector<ur::ExtrudedPolygon> ur::io::OpenAIPReader::readFile(const std::string& file) const
+{
+	std::ifstream fileStream(file.c_str(), std::ios_base::in | std::ios_base::binary);
+	auto open = fileStream.is_open();
+	if (!open)
+	{
+		throw std::ios_base::failure("OpenAIP data file not found");
+	}
+	return read(fileStream);
+}
+
 std::vector<ur::ExtrudedPolygon> ur::io::OpenAIPReader::read(std::istream& fin) const
 {
 	std::vector<ur::ExtrudedPolygon> polysOut;
