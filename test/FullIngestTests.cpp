@@ -6,7 +6,7 @@
 #include "uasrisk/air/io/openaip/OpenAIPReader.h"
 #include "uasrisk/air/io/opensky/OpenSkyCsvReader.h"
 #include "uasrisk/environment/VoxelGrid.h"
-#include "uasrisk/environment/VoxelGridBuilder.h"
+#include "../src/VoxelGridBuilder.h"
 
 TEST(FullIngestTests, IngestTest)
 {
@@ -20,7 +20,7 @@ TEST(FullIngestTests, IngestTest)
 	ur::VoxelGridBuilder vgb(vg);
 
 	const ur::io::OpenSkyCsvReader osReader;
-	const auto trajs = osReader.readFile("states.csv");
+	const auto trajs = osReader.readFile("opensky_states.csv");
 
 	const ur::io::OpenAIPReader oaReader;
 	const auto airspaces = oaReader.readFile("openaip_airspace_uk.aip");

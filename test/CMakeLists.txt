@@ -27,4 +27,7 @@ endmacro()
 ur_add_test(FullIngestTests)
 ur_add_test(GroundRiskIntegrationTests)
 ur_add_test(EmptyGridTests)
+ur_add_test(VoxelGridTests)
+ur_add_test(AirRiskVoxelGridTests)
+ur_add_test(GroundRiskVoxelGridTests)
 
