@@ -1,5 +1,6 @@
 add_subdirectory(openaip)
 add_subdirectory(opensky)
+add_subdirectory(path_planning)
 
 set(UR_SOURCES
 	${UR_SOURCES}
