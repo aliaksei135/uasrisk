@@ -18,7 +18,7 @@
 #include "uasgroundrisk/map_gen/TemporalPopulationMap.h"
 
 #include "uasrisk/ground/GroundRiskVoxelGrid.h"
-#include "uasrisk/air/AirRiskVoxelGrid.h"
+
 
 TEST(GroundRiskIntegrationTests, FullTest)
 {

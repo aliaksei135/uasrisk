@@ -150,6 +150,7 @@ find_package(netCDF CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE netCDF::netcdf)
 
 find_package(Boost REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE Boost::Boost)
 
 find_package(RapidJSON REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE RapidJSON::RapidJSON)
