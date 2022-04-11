@@ -125,9 +125,6 @@ PYBIND11_MODULE(pyuasrisk, topModule)
 		.def("local2World", overload_cast_<int, int, int>()(&ur::VoxelGrid::local2World, py::const_),
 		     "Reproject local indices to world coordinates");
 
-	py::class_<PyAircraftModel>(topModule, "AircraftModel")
-		.def(py::init<const double, const double, const double>(), py::return_value_policy::reference);
-
 	py::class_<ugr::risk::AircraftStateModel>(topModule, "AircraftStateModel")
 		.def(py::init<>())
 		.def_readwrite("position", &ugr::risk::AircraftStateModel::position, "Aircraft Position")
