@@ -15,11 +15,11 @@ namespace ur
 		{
 		public:
 			template <typename T = int_fast32_t>
-			static std::vector<ur::Index, Eigen::aligned_allocator<int>> line3d(
+			static std::vector<ur::Index, Eigen::aligned_allocator<ur::Index>> line3d(
 				const ur::Index& start, const ur::Index& end)
 			{
 				// Collect results here
-				std::vector<ur::Index, Eigen::aligned_allocator<int>> out;
+				std::vector<ur::Index, Eigen::aligned_allocator<ur::Index>> out;
 
 				// Split out values for readability
 				T x0 = start[0];
