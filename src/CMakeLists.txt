@@ -11,4 +11,5 @@ set(UR_SOURCES
 	${CMAKE_CURRENT_LIST_DIR}/Bresenham3D.h
 	${CMAKE_CURRENT_LIST_DIR}/AirRiskVoxelGrid.cpp
 	${CMAKE_CURRENT_LIST_DIR}/GroundRiskVoxelGrid.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiskVoxelGrid.cpp
 	PARENT_SCOPE)

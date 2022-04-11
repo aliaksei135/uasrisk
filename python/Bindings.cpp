@@ -10,6 +10,8 @@
 #include <pybind11_eigen_tensor.h>
 
 #include "uasgroundrisk/map_gen/TemporalPopulationMap.h"
+#include "uasrisk/RiskVoxelGrid.h"
+#include "uasrisk/air/AirRiskVoxelGrid.h"
 
 namespace py = pybind11;
 template <typename... Args>
@@ -44,7 +46,7 @@ class PyGroundRiskVoxelGrid : public ur::GroundRiskVoxelGrid
 public:
 	PyGroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, ur::FPScalar xyRes,
 	                      ur::FPScalar zRes, ugr::risk::AircraftModel& aircraftModel): GroundRiskVoxelGrid(
-		bounds, xyRes, zRes, "EPSG:4326",
+		bounds, xyRes, zRes,
 		new ugr::mapping::TemporalPopulationMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
 		&aircraftModel,
 		new ugr::risk::ObstacleMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
@@ -53,6 +55,34 @@ public:
 	}
 
 	using ur::GroundRiskVoxelGrid::eval;
+};
+
+class PyAirRiskVoxelGrid : public ur::AirRiskVoxelGrid
+{
+public:
+	PyAirRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, const ur::FPScalar xyRes, const ur::FPScalar zRes,
+	                   const std::string& trajPath, const std::string& airspacePath)
+		: AirRiskVoxelGrid(bounds, xyRes, zRes, trajPath, airspacePath)
+	{
+	}
+
+	using ur::AirRiskVoxelGrid::eval;
+};
+
+class PyRiskVoxelGrid : public ur::RiskVoxelGrid
+{
+public:
+	PyRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, const ur::FPScalar xyRes, const ur::FPScalar zRes,
+	                const std::string& trajPath, const std::string& airspacePath,
+	                ugr::risk::AircraftModel& aircraftModel)
+		: RiskVoxelGrid(bounds, xyRes, zRes, trajPath, airspacePath,
+		                new ugr::mapping::TemporalPopulationMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
+		                &aircraftModel, new ugr::risk::ObstacleMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
+		                new ugr::risk::WeatherMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes))
+	{
+	}
+
+	using ur::RiskVoxelGrid::eval;
 };
 
 PYBIND11_MODULE(pyuasrisk, topModule)
@@ -113,10 +143,6 @@ PYBIND11_MODULE(pyuasrisk, topModule)
 		.def("addBallisticDescentModel", &PyAircraftModel::addBallisticDescentModel, "Add ballistic descent model")
 		.def("addParachuteDescentModel", &PyAircraftModel::addParachuteDescentModel, "Add parachute descent model");
 
-	py::class_<PyGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "GroundRiskVoxelGrid")
-		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, ugr::risk::AircraftModel>())
-		.def("eval", &ur::GroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
-
 	py::class_<ugr::mapping::PopulationMap>(topModule, "PopulationMap")
 		.def(py::init<const std::array<float, 4>, int>())
 		.def("eval", &ugr::mapping::PopulationMap::eval, "Evaluate the population map");
@@ -124,4 +150,17 @@ PYBIND11_MODULE(pyuasrisk, topModule)
 	py::class_<ugr::mapping::TemporalPopulationMap, ugr::mapping::PopulationMap>(topModule, "TemporalPopulationMap")
 		.def("setHourOfDay", &ugr::mapping::TemporalPopulationMap::setHourOfDay,
 		     "Set the Hour of Day for the underlying population model");
+
+	py::class_<PyGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "GroundRiskVoxelGrid")
+		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, ugr::risk::AircraftModel>())
+		.def("eval", &PyGroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
+
+	py::class_<PyAirRiskVoxelGrid, ur::VoxelGrid>(topModule, "AirRiskVoxelGrid")
+		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const
+		              std::string&>())
+		.def("eval", &PyAirRiskVoxelGrid::eval, "Evaluate the air risk values of the voxel grid.");
+
+	py::class_<PyRiskVoxelGrid, ur::VoxelGrid>(topModule, "RiskVoxelGrid")
+		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const std::string&, ugr::risk::AircraftModel>())
+		.def("eval", &PyRiskVoxelGrid::eval, "Evaluate the combined risk values of the voxel grid.");
 }

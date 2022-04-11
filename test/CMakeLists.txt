@@ -30,5 +30,6 @@ ur_add_test(EmptyGridTests)
 ur_add_test(VoxelGridTests)
 ur_add_test(AirRiskVoxelGridTests)
 ur_add_test(GroundRiskVoxelGridTests)
+ur_add_test(RiskVoxelGridTests)
 ur_add_test(PathPlannerAStarTests)
 
