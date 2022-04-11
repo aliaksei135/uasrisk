@@ -39,7 +39,7 @@ TEST(GroundRiskVoxelGridTests, EvalTest)
 	obstacleMap.addBuildingHeights();
 	obstacleMap.eval();
 
-	ur::GroundRiskVoxelGrid grvg(xyzBounds, xyRes, zRes, "EPSG:4326", &population, &aircraft, &obstacleMap, &weather);
+	ur::GroundRiskVoxelGrid grvg(xyzBounds, xyRes, zRes, &population, &aircraft, &obstacleMap, &weather);
 	grvg.eval();
 
 
