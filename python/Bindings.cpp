@@ -132,10 +132,10 @@ PYBIND11_MODULE(pyuasrisk, topModule)
 
 	py::class_<PyAircraftModel>(topModule, "AircraftModel")
 		.def(py::init<double, double, double>())
-		.def_readonly("mass", &ugr::risk::AircraftModel::mass, "Aircraft Mass")
-		.def_readonly("length", &ugr::risk::AircraftModel::length, "Aircraft Length")
-		.def_readonly("width", &ugr::risk::AircraftModel::width, "Aircraft Width")
-		.def_readwrite("state", &ugr::risk::AircraftModel::state, "Aircraft State")
+		.def_readonly("mass", &PyAircraftModel::mass, "Aircraft Mass")
+		.def_readonly("length", &PyAircraftModel::length, "Aircraft Length")
+		.def_readonly("width", &PyAircraftModel::width, "Aircraft Width")
+		.def_readwrite("state", &PyAircraftModel::state, "Aircraft State")
 		.def("addGlideDescentModel", &PyAircraftModel::addGlideDescentModel, "Add glide descent model")
 		.def("addBallisticDescentModel", &PyAircraftModel::addBallisticDescentModel, "Add ballistic descent model")
 		.def("addParachuteDescentModel", &PyAircraftModel::addParachuteDescentModel, "Add parachute descent model");
@@ -149,7 +149,7 @@ PYBIND11_MODULE(pyuasrisk, topModule)
 		     "Set the Hour of Day for the underlying population model");
 
 	py::class_<PyGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "GroundRiskVoxelGrid")
-		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, ugr::risk::AircraftModel>())
+		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel>())
 		.def("eval", &PyGroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
 
 	py::class_<PyAirRiskVoxelGrid, ur::VoxelGrid>(topModule, "AirRiskVoxelGrid")
@@ -158,6 +158,6 @@ PYBIND11_MODULE(pyuasrisk, topModule)
 		.def("eval", &PyAirRiskVoxelGrid::eval, "Evaluate the air risk values of the voxel grid.");
 
 	py::class_<PyRiskVoxelGrid, ur::VoxelGrid>(topModule, "RiskVoxelGrid")
-		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const std::string&, ugr::risk::AircraftModel>())
+		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const std::string&, PyAircraftModel>())
 		.def("eval", &PyRiskVoxelGrid::eval, "Evaluate the combined risk values of the voxel grid.");
 }
