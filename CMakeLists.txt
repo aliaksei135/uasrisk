@@ -27,6 +27,7 @@ if (CCACHE)
 endif ()
 
 option(UR_BUILD_PYTHON_BINDINGS "Build the Python bindings for uasrisk" ON)
+option(UR_BUILD_TESTS "Build the tests for uasrisk" OFF)
 
 ###########################################################
 # Static code analysis
@@ -179,9 +180,7 @@ endif()
 # Testing
 ##############################################################
 
-set(${PROJECT_NAME}_BUILD_TESTS ON)
-
-if (${PROJECT_NAME}_BUILD_TESTS)
+if (UR_BUILD_TESTS)
     ##################################
     # GoogleTest
     # Test framework
