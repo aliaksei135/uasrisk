@@ -26,16 +26,19 @@ void ur::GroundRiskVoxelGrid::eval()
 		// Get the altitude value for this layer
 		const auto altitude = local2World(0, 0, z)[2];
 
+		// Set the state altitude to the altitude of this layer
+		aircraftModel->state.position(2) = altitude;
+
 		// Create a thread local aircraft model as we modify the altitude on it
 		// ugr::risk::AircraftModel localAircraftModel(aircraftModel);
 
 		// Create a riskmap object 
 		ugr::risk::RiskMap altRiskMap(*populationMap, *aircraftModel, *obstacleMap, *weatherMap);
-		// Set the state altitude to the altitude of this layer
-		aircraftModel->state.position(2) = altitude;
+
 		//TODO Allow propogation of heading
 		// Set any heading for now
 		altRiskMap.SetAnyHeading(true);
+
 		// Evaluate the ground risk map for this altitude
 		altRiskMap.eval();
 
