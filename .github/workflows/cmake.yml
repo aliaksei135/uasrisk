@@ -16,20 +16,24 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.6", "3.7", "3.8", "3.9"]
+    runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Setup environment
-        run: | 
-            sudo apt-get update -qq
-            sudo apt-get install -y cmake
-            sudo apt-get install -y googletest
-            sudo apt-get install -y libeigen3-dev
-            sudo apt-get install -y libgeos-dev
-            sudo apt-get install -y libssl-dev
-            sudo apt-get install -y python3-dev
-            sudo apt-get install -y libboost-all-dev
-            sudo apt-get install -y libomp-dev
+#       - name: Setup environment
+#         run: | 
+#             sudo apt-get update -qq
+#             sudo apt-get install -y cmake
+#             sudo apt-get install -y googletest
+#             sudo apt-get install -y libeigen3-dev
+#             sudo apt-get install -y libgeos-dev
+#             sudo apt-get install -y libssl-dev
+#             sudo apt-get install -y python3-dev
+#             sudo apt-get install -y libboost-all-dev
+#             sudo apt-get install -y libomp-dev
 
       - uses: actions/checkout@v3
         with:
