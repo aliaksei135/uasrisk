@@ -5,6 +5,7 @@ project(uasrisk
         LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CXX_STANDARD_REQUIRED ON)
 set(PYTHON_VERSION 3)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
@@ -163,6 +164,7 @@ find_package(fast-cpp-csv-parser REQUIRED)
 find_package(pugixml REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE pugixml::pugixml)
 
+message("BUILDING UGR")
 FetchContent_Declare(
         uasgroundrisk
         GIT_REPOSITORY https://github.com/aliaksei135/uasgroundrisk.git

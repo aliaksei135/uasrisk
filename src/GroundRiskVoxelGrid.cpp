@@ -1,4 +1,5 @@
 #include "uasrisk/ground/GroundRiskVoxelGrid.h"
+#include <cassert>
 
 
 ur::GroundRiskVoxelGrid::GroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, const ur::FPScalar xyRes,
@@ -15,6 +16,7 @@ ur::GroundRiskVoxelGrid::GroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& 
 void ur::GroundRiskVoxelGrid::eval()
 {
 	add("Ground Strike Risk", 0);
+	add("Ground Fatality Risk", 0);
 	add("Ground Fatality Risk", 0);
 
 
@@ -49,10 +51,8 @@ void ur::GroundRiskVoxelGrid::eval()
 		// auto strikeRisk2Tensor = Eigen::TensorMap<const Eigen::Tensor<const ur::FPScalar, 2>>(strikeRiskMat.data(), sizeX, sizeY);
 
 		// Make sure the shapes are compatible otherwise inserting without runtime size checks won't work
-		assert(strikeRiskMat.cols() == sizeX,
-		       "Ground Risk RiskMap and GroundRiskVoxelGrid have incompatible layer shapes");
-		assert(strikeRiskMat.rows() == sizeY,
-		       "Ground Risk RiskMap and GroundRiskVoxelGrid have incompatible layer shapes");
+		assert(strikeRiskMat.cols() == sizeX);
+		assert(strikeRiskMat.rows() == sizeY);
 
 		// Insert the layers into the tensor
 		// groundStrikeRiskTensor.chip(z, 2) = Eigen::TensorMap<const Eigen::Tensor<const ur::FPScalar, 2>>(
