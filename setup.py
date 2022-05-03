@@ -1,8 +1,18 @@
 import sys
+import os
+import shutil
 import sysconfig
 
 from skbuild import setup
 from setuptools import find_packages
+
+# Remove previous build folder
+def remove_readonly(func, path, excinfo):
+    os.chmod(path, stat.S_IWRITE)
+    os.remove(path)
+
+if os.path.exists('_skbuild'):
+    shutil.rmtree('_skbuild', onerror=remove_readonly)
 
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
