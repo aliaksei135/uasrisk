@@ -4,9 +4,10 @@ project(uasrisk
         VERSION 0.1
         LANGUAGES CXX)
 
-#set(CMAKE_CXX_STANDARD 17)
-#set(CXX_STANDARD_REQUIRED ON)
-#set(PYTHON_VERSION 3)
+set(CMAKE_CXX_STANDARD 17)
+set(CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(PYTHON_VERSION 3)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 Include(FetchContent)
@@ -92,6 +93,8 @@ else ()
     add_library(${PROJECT_NAME} STATIC ${UR_SOURCES})
 endif ()
 
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+
 target_include_directories(${PROJECT_NAME}
 	PUBLIC
 	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -103,7 +106,10 @@ if (MSVC)
     # Prevent Windows.h overwriting min and max with macros
     # Keep Math defines such as M_PI
     target_compile_definitions(${PROJECT_NAME} PUBLIC NOMINMAX _USE_MATH_DEFINES)
-endif ()
+    target_compile_options(${PROJECT_NAME} PRIVATE /permissive-)
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE -pedantic-errors)
+endif()
 
 ##############################################################
 # Dependencies
