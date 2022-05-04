@@ -98,17 +98,19 @@ PYBIND11_MODULE(pyuasrisk, topModule)
 		.def("add", overload_cast_<const std::string&, const ur::Matrix&>()(&ur::VoxelGrid::add),
 		     "Add a layer with a prefilled grid")
 		.def("at", overload_cast_<const std::string&, const ur::Index&>()(&ur::VoxelGrid::at),
-		     py::return_value_policy::reference_internal, "Return the value of the layer at a given index")
+		     // py::return_value_policy::reference_internal,
+		     "Return the value of the layer at a given index")
 		.def("at", overload_cast_<const std::string&, const ur::Index&>()(&ur::VoxelGrid::at, py::const_),
 		     "Return the value of the layer at a given index")
 		.def("atPosition", overload_cast_<const std::string&, const ur::Position&>()(&ur::VoxelGrid::atPosition),
-		     py::return_value_policy::reference_internal,
+		     // py::return_value_policy::reference_internal,
 		     "Return the value of the layer at the given world coordinates")
 		.def("atPosition",
 		     overload_cast_<const std::string&, const ur::Position&>()(&ur::VoxelGrid::atPosition, py::const_),
 		     "Return the value of the layer at the given world coordinates")
 		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get),
-		     py::return_value_policy::reference_internal, "Return the entire tensor for a layer")
+		     // py::return_value_policy::reference_internal,
+		     "Return the entire tensor for a layer")
 		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get, py::const_),
 		     "Return the entire tensor for a layer")
 		.def("world2Local", overload_cast_<const ur::Position&>()(&ur::VoxelGrid::world2Local, py::const_),
@@ -158,6 +160,7 @@ PYBIND11_MODULE(pyuasrisk, topModule)
 		.def("eval", &PyAirRiskVoxelGrid::eval, "Evaluate the air risk values of the voxel grid.");
 
 	py::class_<PyRiskVoxelGrid, ur::VoxelGrid>(topModule, "RiskVoxelGrid")
-		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const std::string&, PyAircraftModel*>())
+		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const
+		              std::string&, PyAircraftModel*>())
 		.def("eval", &PyRiskVoxelGrid::eval, "Evaluate the combined risk values of the voxel grid.");
 }
