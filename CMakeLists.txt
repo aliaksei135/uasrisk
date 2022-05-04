@@ -106,9 +106,9 @@ if (MSVC)
     # Prevent Windows.h overwriting min and max with macros
     # Keep Math defines such as M_PI
     target_compile_definitions(${PROJECT_NAME} PUBLIC NOMINMAX _USE_MATH_DEFINES)
-    target_compile_options(${PROJECT_NAME} PRIVATE /permissive-)
+    #target_compile_options(${PROJECT_NAME} PRIVATE /permissive- /WX /W4)
 else()
-    target_compile_options(${PROJECT_NAME} PRIVATE -pedantic-errors)
+    #target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
 endif()
 
 ##############################################################
