@@ -135,6 +135,9 @@ find_package(proj CONFIG REQUIRED)
 # Get Data dir in conan package
 string(TOUPPER ${CMAKE_BUILD_TYPE} ${PROJECT_NAME}_UPPER_BUILD_TYPE)
 set(PROJ_DATA ${PROJ_proj_RES_DIRS_${${PROJECT_NAME}_UPPER_BUILD_TYPE}})
+add_custom_target(UR_proj_data
+	${CMAKE_COMMAND} -E copy_directory ${PROJ_DATA} ${PROJECT_BINARY_DIR}/bin)
+add_dependencies(${PROJECT_NAME} UR_proj_data)
 # Set this to a compile def that is used when PROJ contexts are created
 target_compile_definitions(${PROJECT_NAME} PUBLIC PROJ_DATA_PATH="${PROJ_DATA}")
 target_link_libraries(${PROJECT_NAME} PUBLIC PROJ::PROJ)

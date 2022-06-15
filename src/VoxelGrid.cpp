@@ -16,11 +16,15 @@ ur::VoxelGrid::VoxelGrid(const std::array<FPScalar, 6> bounds, const FPScalar xy
                                                 worldSrs(worldSrs),
                                                 projectionSrs("EPSG:3395"), projCtx(proj_context_create())
 {
+	const auto* envDataDir = std::getenv("PROJ_LIB");
+	if (envDataDir == nullptr)
+	{
 #ifdef PROJ_DATA_PATH
-	const char* projDataPaths[1];
-	projDataPaths[0] = PROJ_DATA_PATH;
-	proj_context_set_search_paths(projCtx, 1, projDataPaths);
+		const char* projDataPaths[1];
+		projDataPaths[0] = PROJ_DATA_PATH;
+		proj_context_set_search_paths(projCtx, 1, projDataPaths);
 #endif
+	}
 	reproj = proj_create_crs_to_crs(projCtx, worldSrs, projectionSrs, nullptr);
 
 	// This reprojects EPSG:4326 to EPSG:3395 by default
