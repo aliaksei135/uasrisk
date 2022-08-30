@@ -88,6 +88,7 @@ endif ()
 
 if (${${PROJECT_NAME}_BUILD_SHARED})
     add_library(${PROJECT_NAME} SHARED ${UR_SOURCES})
+    set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 else ()
     add_library(${PROJECT_NAME} STATIC ${UR_SOURCES})
 endif ()
@@ -204,6 +205,16 @@ if (UR_BUILD_TESTS)
     enable_testing()
     add_subdirectory(test)
 endif ()
+
+#############################################################
+# Install
+#############################################################
+include(GNUInstallDirs)
+install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+
 
 #############################################################
 # Docs
