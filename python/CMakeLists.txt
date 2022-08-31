@@ -11,12 +11,12 @@ if(SKBUILD)
   list(APPEND CMAKE_PREFIX_PATH "${_tmp_dir}")
 endif()
 
-pybind11_add_module(pyuasrisk 
+pybind11_add_module(_pyuasrisk
     MODULE
     ${CMAKE_CURRENT_LIST_DIR}/Bindings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/tensor.h
     )
-set_target_properties(pyuasrisk PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(_pyuasrisk PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(uasrisk PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(uasgroundrisk PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
@@ -31,13 +31,8 @@ set_target_properties(uasgroundrisk PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 #    target_include_directories(pyuasrisk PRIVATE ${pybind11_tensor_SOURCE_DIR}/include)
 #endif()
 
-target_link_libraries(pyuasrisk PRIVATE uasrisk)
-target_link_libraries(pyuasrisk PRIVATE uasgroundrisk)
+target_link_libraries(_pyuasrisk PRIVATE uasrisk)
+target_link_libraries(_pyuasrisk PRIVATE uasgroundrisk)
 
 include(GNUInstallDirs)
-##install(TARGETS pyuasrisk DESTINATION .)
-install(TARGETS pyuasrisk
-        COMPONENT python
-        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+install(TARGETS _pyuasrisk DESTINATION .)

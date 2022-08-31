@@ -86,7 +86,7 @@ public:
 	using ur::RiskVoxelGrid::eval;
 };
 
-PYBIND11_MODULE(pyuasrisk, topModule)
+PYBIND11_MODULE(_pyuasrisk, topModule)
 {
 	topModule.doc() = "Risk estimation for uncrewed aerial systems";
 	topModule.attr("__version__") = "0.0.1"; //TODO grab from CMake defines
