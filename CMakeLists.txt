@@ -82,9 +82,10 @@ set(UR_SOURCES
 add_subdirectory(src)
 
 if (MSVC)
+    if(BUILD_SHARED_LIBS)
+        message("Only static linking is supported for MSVC compilers")
+    endif()
     set(BUILD_SHARED_LIBS OFF)
-else ()
-    set(BUILD_SHARED_LIBS ON)
 endif ()
 
 add_library(${PROJECT_NAME} ${UR_SOURCES})
