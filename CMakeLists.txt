@@ -29,6 +29,7 @@ endif ()
 
 option(UR_BUILD_PYTHON_BINDINGS "Build the Python bindings for uasrisk" ON)
 option(UR_BUILD_TESTS "Build the tests for uasrisk" OFF)
+option(BUILD_SHARED_LIBS "Build as shared library" ON)
 
 ###########################################################
 # Static code analysis
@@ -81,17 +82,13 @@ set(UR_SOURCES
 add_subdirectory(src)
 
 if (MSVC)
-    set(${PROJECT_NAME}_BUILD_SHARED OFF)
+    set(BUILD_SHARED_LIBS OFF)
 else ()
-    set(${PROJECT_NAME}_BUILD_SHARED ON)
+    set(BUILD_SHARED_LIBS ON)
 endif ()
 
-if (${${PROJECT_NAME}_BUILD_SHARED})
-    add_library(${PROJECT_NAME} SHARED ${UR_SOURCES})
-    set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-else ()
-    add_library(${PROJECT_NAME} STATIC ${UR_SOURCES})
-endif ()
+add_library(${PROJECT_NAME} ${UR_SOURCES})
+set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_include_directories(${PROJECT_NAME}
 	PUBLIC
