@@ -34,10 +34,10 @@ set_target_properties(uasgroundrisk PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 target_link_libraries(pyuasrisk PRIVATE uasrisk)
 target_link_libraries(pyuasrisk PRIVATE uasgroundrisk)
 
-#include(GNUInstallDirs)
+include(GNUInstallDirs)
 ##install(TARGETS pyuasrisk DESTINATION .)
-#install(TARGETS pyuasrisk
-#        COMPONENT python
-#        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-#        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-#        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+install(TARGETS pyuasrisk
+        COMPONENT python
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
