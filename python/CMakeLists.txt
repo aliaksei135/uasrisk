@@ -14,7 +14,8 @@ endif ()
 pybind11_add_module(_pyuasrisk
         MODULE
         ${CMAKE_CURRENT_LIST_DIR}/Bindings.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/tensor.h
+        ${CMAKE_CURRENT_LIST_DIR}/pybind11_eigen_tensor.h
+        ${CMAKE_CURRENT_LIST_DIR}/tensor_traits.h
         )
 set_target_properties(_pyuasrisk PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(uasrisk PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
