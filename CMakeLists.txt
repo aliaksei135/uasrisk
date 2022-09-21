@@ -168,7 +168,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE pugixml::pugixml)
 message("BUILDING UGR")
 FetchContent_Declare(
         uasgroundrisk
-        GIT_REPOSITORY git@github.com:aliaksei135/uasgroundrisk.git
+        GIT_REPOSITORY https://github.com/aliaksei135/uasgroundrisk.git
         GIT_TAG origin/master
 )
 FetchContent_MakeAvailable(uasgroundrisk)
