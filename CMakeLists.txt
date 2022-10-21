@@ -166,6 +166,9 @@ find_package(fast-cpp-csv-parser REQUIRED)
 find_package(pugixml REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE pugixml::pugixml)
 
+find_package(spdlog CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
+
 message("BUILDING UGR")
 FetchContent_Declare(
         uasgroundrisk

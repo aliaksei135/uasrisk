@@ -8,6 +8,7 @@ boost/1.74.0
 rapidjson/cci.20211112
 fast-cpp-csv-parser/cci.20200830
 pugixml/1.11
+spdlog/[>=1.10.0]
 
 [generators]
 cmake_find_package_multi
