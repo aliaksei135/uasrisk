@@ -3,6 +3,9 @@
 #include "uasrisk/environment/VoxelGrid.h"
 #include "uasrisk/ground/GroundRiskVoxelGrid.h"
 #include "uasgroundrisk/risk_analysis/RiskMap.h"
+
+#include <Eigen/Dense>
+
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
@@ -53,6 +56,22 @@ public:
 		new ugr::risk::WeatherMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes))
 	{
 	}
+
+        using MatrixSliceType = Eigen::Matrix<ur::FPScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+
+        MatrixSliceType getZLayer(const std::string& layerName, const int zIndex) const {
+                const auto& tensorLayer = get(layerName);
+
+                Eigen::array<Eigen::Index, 3> offsets = {0,0,zIndex};
+                Eigen::array<Eigen::Index, 3> extents = {sizeX, sizeY, zIndex+1};
+
+                Eigen::array<Eigen::Index, 2> outShape = {sizeX, sizeY};
+                const Eigen::Tensor<ur::FPScalar, 3> tensorSliceR3 = tensorLayer.slice(offsets, extents);
+                const Eigen::Tensor<ur::FPScalar, 2> tensorSliceR2 = tensorSliceR3.reshape(outShape);
+
+                MatrixSliceType out = Eigen::Map<const MatrixSliceType>(tensorSliceR2.data(), sizeX, sizeY);
+                return out;
+        }
 
 	using ur::GroundRiskVoxelGrid::eval;
 };
@@ -107,10 +126,10 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 		.def("atPosition",
 		     overload_cast_<const std::string&, const ur::Position&>()(&ur::VoxelGrid::atPosition, py::const_),
 		     "Return the value of the layer at the given world coordinates")
-		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get),
-		     py::return_value_policy::reference_internal, "Return the entire tensor for a layer")
-		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get, py::const_),
-		     "Return the entire tensor for a layer")
+//		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get),
+//		     py::return_value_policy::reference_internal, "Return the entire tensor for a layer")
+//		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get, py::const_),
+//		     "Return the entire tensor for a layer")
 		.def("world2Local", overload_cast_<const ur::Position&>()(&ur::VoxelGrid::world2Local, py::const_),
 		     "Reproject world (EPSG:4326) coordinates to local indices")
 		.def("world2Local",
@@ -150,6 +169,7 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 
 	py::class_<PyGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "GroundRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>())
+		.def("getZLayer", &PyGroundRiskVoxelGrid::getZLayer, py::return_value_policy::copy,"Extract a slice of the risk tensor at the given z Index.")
 		.def("eval", &PyGroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
 
 	py::class_<PyAirRiskVoxelGrid, ur::VoxelGrid>(topModule, "AirRiskVoxelGrid")
