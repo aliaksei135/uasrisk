@@ -245,6 +245,7 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 
 	py::class_<PyGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "GroundRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>())
+                .def("getZLayer", &PyGroundRiskVoxelGrid::getZLayer, py::return_value_policy::copy,"Extract a slice of the risk tensor at the given z Index.")
 		.def("eval", &PyGroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
 
 	py::class_<PyAirRiskVoxelGrid, ur::VoxelGrid>(topModule, "AirRiskVoxelGrid")
