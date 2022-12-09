@@ -11,6 +11,10 @@
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 #include "pybind11_eigen_tensor.h"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/pattern_formatter.h"
 
 #include "uasgroundrisk/map_gen/TemporalPopulationMap.h"
 #include "uasrisk/RiskVoxelGrid.h"
@@ -55,6 +59,30 @@ public:
 		new ugr::risk::ObstacleMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
 		new ugr::risk::WeatherMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes))
 	{
+		try
+		{
+			auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+			console_sink->set_level(spdlog::level::trace);
+			console_sink->set_pattern("[uasrisk] [%^%l%$] %v");
+
+			auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/uasrisk.out.log", true);
+			file_sink->set_level(spdlog::level::trace);
+
+			spdlog::sinks_init_list sink_list = { file_sink, console_sink };
+
+			spdlog::logger logger("uasrisk", sink_list.begin(), sink_list.end());
+			logger.set_level(spdlog::level::trace);
+			logger.warn("this should appear in both console and file");
+			logger.info("this message should not appear in the console, only in the file");
+
+			// or you can even set multi_sink logger as default logger
+			spdlog::set_default_logger(
+				std::make_shared<spdlog::logger>("uasrisk", spdlog::sinks_init_list({ console_sink, file_sink })));
+		}
+		catch (const spdlog::spdlog_ex& ex)
+		{
+			std::cout << "Log initialization failed: " << ex.what() << std::endl;
+		}
 	}
 
         using MatrixSliceType = Eigen::Matrix<ur::FPScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
@@ -83,6 +111,30 @@ public:
 	                   const std::string& trajPath, const std::string& airspacePath)
 		: AirRiskVoxelGrid(bounds, xyRes, zRes, trajPath, airspacePath)
 	{
+		try
+		{
+			auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+			console_sink->set_level(spdlog::level::trace);
+			console_sink->set_pattern("[uasrisk] [%^%l%$] %v");
+
+			auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/uasrisk.out.log", true);
+			file_sink->set_level(spdlog::level::trace);
+
+			spdlog::sinks_init_list sink_list = { file_sink, console_sink };
+
+			spdlog::logger logger("uasrisk", sink_list.begin(), sink_list.end());
+			logger.set_level(spdlog::level::trace);
+			logger.warn("this should appear in both console and file");
+			logger.info("this message should not appear in the console, only in the file");
+
+			// or you can even set multi_sink logger as default logger
+			spdlog::set_default_logger(
+				std::make_shared<spdlog::logger>("uasrisk", spdlog::sinks_init_list({ console_sink, file_sink })));
+		}
+		catch (const spdlog::spdlog_ex& ex)
+		{
+			std::cout << "Log initialization failed: " << ex.what() << std::endl;
+		}
 	}
 
 	using ur::AirRiskVoxelGrid::eval;
@@ -99,6 +151,30 @@ public:
 		                aircraftModel, new ugr::risk::ObstacleMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
 		                new ugr::risk::WeatherMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes))
 	{
+		try
+		{
+			auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+			console_sink->set_level(spdlog::level::trace);
+			console_sink->set_pattern("[uasrisk] [%^%l%$] %v");
+
+			auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/uasrisk.out.log", true);
+			file_sink->set_level(spdlog::level::trace);
+
+			spdlog::sinks_init_list sink_list = { file_sink, console_sink };
+
+			spdlog::logger logger("uasrisk", sink_list.begin(), sink_list.end());
+			logger.set_level(spdlog::level::trace);
+			logger.warn("this should appear in both console and file");
+			logger.info("this message should not appear in the console, only in the file");
+
+			// or you can even set multi_sink logger as default logger
+			spdlog::set_default_logger(
+				std::make_shared<spdlog::logger>("uasrisk", spdlog::sinks_init_list({ console_sink, file_sink })));
+		}
+		catch (const spdlog::spdlog_ex& ex)
+		{
+			std::cout << "Log initialization failed: " << ex.what() << std::endl;
+		}
 	}
 
 	using ur::RiskVoxelGrid::eval;
@@ -169,7 +245,6 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 
 	py::class_<PyGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "GroundRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>())
-		.def("getZLayer", &PyGroundRiskVoxelGrid::getZLayer, py::return_value_policy::copy,"Extract a slice of the risk tensor at the given z Index.")
 		.def("eval", &PyGroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
 
 	py::class_<PyAirRiskVoxelGrid, ur::VoxelGrid>(topModule, "AirRiskVoxelGrid")

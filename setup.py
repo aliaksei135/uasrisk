@@ -32,7 +32,7 @@ setup(
     cmake_install_dir="python/pyuasrisk",
     cmake_args=[f"-DUGR_DATA_DIR={package_data_dir}"],
     include_package_data=True,
-    package_data={"pyuasrisk": ["data/*.*", ]},
+    package_data={"pyuasrisk": ["data/*.*"]},
     package_dir={"": "python"},
     python_requires=">=3.6",
 )

@@ -8,6 +8,7 @@
 
 #include <netcdf.h>
 #include <stdexcept>
+#include <iostream>
 
 ur::VoxelGrid::VoxelGrid(const std::array<FPScalar, 6> bounds, const FPScalar xyRes,
                          const FPScalar zRes,
@@ -16,12 +17,15 @@ ur::VoxelGrid::VoxelGrid(const std::array<FPScalar, 6> bounds, const FPScalar xy
                                                 worldSrs(worldSrs),
                                                 projectionSrs("EPSG:3395"), projCtx(proj_context_create())
 {
+	std::cout << "uasrisk: Creating PROJ obj...\n";
 	const auto* envDataDir = std::getenv("PROJ_LIB");
 	if (envDataDir == nullptr)
 	{
+		std::cout << "uasrisk: PROJ_LIB not set. Falling back";
 #ifdef PROJ_DATA_PATH
 		const char* projDataPaths[1];
 		projDataPaths[0] = PROJ_DATA_PATH;
+		std::cout << "uasrisk: Using Internally set PROJ data dir: " << projDataPaths[0] << "\n";
 		proj_context_set_search_paths(projCtx, 1, projDataPaths);
 #endif
 	}
