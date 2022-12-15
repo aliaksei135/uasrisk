@@ -11,11 +11,11 @@
 #include <iostream>
 
 ur::VoxelGrid::VoxelGrid(const std::array<FPScalar, 6> bounds, const FPScalar xyRes,
-                         const FPScalar zRes,
-                         const char* worldSrs): xyRes(xyRes), zRes(zRes),
-                                                sizeZ(static_cast<int>((bounds[5] - bounds[2]) / zRes)),
-                                                worldSrs(worldSrs),
-                                                projectionSrs("EPSG:3395"), projCtx(proj_context_create())
+	const FPScalar zRes,
+	const char* worldSrs) : xyRes(xyRes), zRes(zRes),
+							sizeZ(static_cast<int>((bounds[5] - bounds[2]) / zRes)),
+							worldSrs(worldSrs),
+							projectionSrs("EPSG:3395"), projCtx(proj_context_create())
 {
 	std::cout << "uasrisk: Creating PROJ obj...\n";
 	const auto* envDataDir = std::getenv("PROJ_LIB");
@@ -32,14 +32,14 @@ ur::VoxelGrid::VoxelGrid(const std::array<FPScalar, 6> bounds, const FPScalar xy
 	reproj = proj_create_crs_to_crs(projCtx, worldSrs, projectionSrs, nullptr);
 
 	// This reprojects EPSG:4326 to EPSG:3395 by default
-	const auto swProjPoint = proj_trans(reproj, PJ_FWD, {bounds[0], bounds[1], bounds[2]});
+	const auto swProjPoint = proj_trans(reproj, PJ_FWD, { bounds[0], bounds[1], bounds[2] });
 	this->projectionOrigin = {
 		static_cast<FPScalar>(swProjPoint.enu.e),
 		static_cast<FPScalar>(swProjPoint.enu.n),
 		static_cast<FPScalar>(swProjPoint.enu.u)
 	};
 	//TODO: Should an altitude be set in the projection origin?
-	const auto neProjPoint = proj_trans(reproj, PJ_FWD, {bounds[3], bounds[4], bounds[5]});
+	const auto neProjPoint = proj_trans(reproj, PJ_FWD, { bounds[3], bounds[4], bounds[5] });
 	const auto dx = std::abs(swProjPoint.enu.e - neProjPoint.enu.e);
 	const auto dy = std::abs(swProjPoint.enu.n - neProjPoint.enu.n);
 	const int xLength = static_cast<int>(dx / static_cast<float>(xyRes));
@@ -63,7 +63,7 @@ void ur::VoxelGrid::add(const std::string& layerName, const FPScalar constValue)
 {
 	Matrix data(sizeX, sizeY, sizeZ);
 	data.setConstant(0);
-	layers.insert({layerName, data});
+	layers.insert({ layerName, data });
 }
 
 void ur::VoxelGrid::add(const std::string& layerName, const Matrix& data)
@@ -73,7 +73,7 @@ void ur::VoxelGrid::add(const std::string& layerName, const Matrix& data)
 	assert(size[0] == sizeX);
 	assert(size[1] == sizeY);
 	assert(size[2] == sizeZ);
-	layers.insert({layerName, data});
+	layers.insert({ layerName, data });
 }
 
 ur::FPScalar ur::VoxelGrid::at(const std::string& layerName, const Index& idx) const
@@ -116,10 +116,10 @@ bool ur::VoxelGrid::isInBounds(const Index& localCoord) const
 
 ur::Index ur::VoxelGrid::world2Local(const FPScalar lon, const FPScalar lat, const FPScalar alt) const
 {
-	const auto out = proj_trans(reproj, PJ_FWD, {lat, lon, alt});
+	const auto out = proj_trans(reproj, PJ_FWD, { lat, lon, alt });
 
 	return {
-		static_cast<int>((out.enu.n - projectionOrigin[1]) / xyRes),
+		static_cast<int>(sizeX - ((out.enu.n - projectionOrigin[1]) / xyRes)),
 		static_cast<int>((out.enu.e - projectionOrigin[0]) / xyRes),
 		static_cast<int>((out.enu.u - projectionOrigin[2]) / zRes)
 	};
@@ -135,10 +135,10 @@ ur::Position ur::VoxelGrid::local2World(const int x, const int y, const int z) c
 	// return local2World({x, y, z});
 
 	const auto worldCoords = proj_trans(reproj, PJ_INV, {
-		                                    x * xyRes + projectionOrigin[0],
-		                                    y * xyRes + projectionOrigin[1],
-		                                    z * zRes + projectionOrigin[2]
-	                                    });
+		static_cast<ur::FPScalar>(sizeX - x) * xyRes + projectionOrigin[0],
+		static_cast<ur::FPScalar>(y) * xyRes + projectionOrigin[1],
+		static_cast<ur::FPScalar>(z) * zRes + projectionOrigin[2]
+	});
 
 	return {
 		static_cast<FPScalar>(worldCoords.enu.n), static_cast<FPScalar>(worldCoords.enu.e),
@@ -161,7 +161,6 @@ ur::Position ur::VoxelGrid::local2World(const Index& localCoord) const
 {
 	return local2World(localCoord[0], localCoord[1], localCoord[2]);
 }
-
 
 void ur::VoxelGrid::writeToNetCDF(const std::string& path) const
 {
@@ -187,7 +186,6 @@ void ur::VoxelGrid::writeToNetCDF(const std::string& path) const
 	for (int i = 0; i < sizeZ; ++i)
 		alts[i] = local2World(0, 0, i)[2];
 
-
 	int c = 0;
 	for (int j = 0; j < sizeY; ++j)
 	{
@@ -204,7 +202,7 @@ void ur::VoxelGrid::writeToNetCDF(const std::string& path) const
 	}
 
 	int ncID, latDimID, lonDimID, altDimID, airRiskDimID, groundRiskDimID, blockedDimID, latVarID, lonVarID,
-	    altVarID, airRiskVarID, groundRiskVarID, blockedVarID;
+		altVarID, airRiskVarID, groundRiskVarID, blockedVarID;
 	nc_create(path.c_str(), NC_CLOBBER | NC_NETCDF4, &ncID);
 	nc_def_dim(ncID, "Latitude", sizeX, &latDimID);
 	nc_def_dim(ncID, "Longitude", sizeY, &lonDimID);
@@ -213,14 +211,14 @@ void ur::VoxelGrid::writeToNetCDF(const std::string& path) const
 	nc_def_dim(ncID, "Ground Risk", sizeX * sizeY * sizeZ, &groundRiskDimID);
 	nc_def_dim(ncID, "Blocked", sizeX * sizeY * sizeZ, &blockedDimID);
 
-	const int dimArr[3] = {lonDimID, latDimID, altDimID};
+	const int dimArr[3] = { lonDimID, latDimID, altDimID };
 
-	const char* degEStr[1] = {"degrees_east"};
-	const char* degNStr[1] = {"degrees_north"};
-	const char* metreStr[1] = {"metres"};
-	const char* xStr[1] = {"X"};
-	const char* yStr[1] = {"Y"};
-	const char* zStr[1] = {"Z"};
+	const char* degEStr[1] = { "degrees_east" };
+	const char* degNStr[1] = { "degrees_north" };
+	const char* metreStr[1] = { "metres" };
+	const char* xStr[1] = { "X" };
+	const char* yStr[1] = { "Y" };
+	const char* zStr[1] = { "Z" };
 	nc_def_var(ncID, "Latitude", NC_FLOAT, 1, &latDimID, &latVarID);
 	nc_put_att_string(ncID, latVarID, "units", 1, degNStr);
 	nc_put_att_string(ncID, latVarID, "axis", 1, yStr);
@@ -234,8 +232,8 @@ void ur::VoxelGrid::writeToNetCDF(const std::string& path) const
 	nc_put_att_string(ncID, altVarID, "axis", 1, zStr);
 
 	nc_def_var(ncID, "Air Risk", NC_FLOAT, 3, dimArr, &airRiskVarID);
-	nc_def_var(ncID, "Ground Risk",NC_FLOAT, 3, dimArr, &groundRiskVarID);
-	nc_def_var(ncID, "Blocked",NC_SHORT, 3, dimArr, &blockedVarID);
+	nc_def_var(ncID, "Ground Risk", NC_FLOAT, 3, dimArr, &groundRiskVarID);
+	nc_def_var(ncID, "Blocked", NC_SHORT, 3, dimArr, &blockedVarID);
 
 	nc_put_var_float(ncID, latVarID, lats.data());
 	nc_put_var_float(ncID, lonVarID, lons.data());
