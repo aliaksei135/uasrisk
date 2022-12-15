@@ -119,8 +119,8 @@ ur::Index ur::VoxelGrid::world2Local(const FPScalar lon, const FPScalar lat, con
 	const auto out = proj_trans(reproj, PJ_FWD, { lat, lon, alt });
 
 	return {
-		static_cast<int>(sizeX - ((out.enu.n - projectionOrigin[1]) / xyRes)),
 		static_cast<int>((out.enu.e - projectionOrigin[0]) / xyRes),
+		static_cast<int>(sizeX - ((out.enu.n - projectionOrigin[1]) / xyRes)),
 		static_cast<int>((out.enu.u - projectionOrigin[2]) / zRes)
 	};
 }
