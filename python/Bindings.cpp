@@ -21,12 +21,12 @@
 #include "uasrisk/air/AirRiskVoxelGrid.h"
 
 namespace py = pybind11;
-template <typename... Args>
+template<typename... Args>
 using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 
 class PyAircraftModel : public ugr::risk::AircraftModel
 {
-public:
+ public:
 	PyAircraftModel(const double mass, const double width, const double length)
 		: AircraftModel(mass, width, length)
 	{
@@ -50,14 +50,14 @@ public:
 
 class PyGroundRiskVoxelGrid : public ur::GroundRiskVoxelGrid
 {
-public:
+ public:
 	PyGroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, ur::FPScalar xyRes,
-	                      ur::FPScalar zRes, ugr::risk::AircraftModel* aircraftModel): GroundRiskVoxelGrid(
+		ur::FPScalar zRes, ugr::risk::AircraftModel* aircraftModel) : GroundRiskVoxelGrid(
 		bounds, xyRes, zRes,
-		new ugr::mapping::TemporalPopulationMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
+		new ugr::mapping::TemporalPopulationMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
 		aircraftModel,
-		new ugr::risk::ObstacleMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
-		new ugr::risk::WeatherMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes))
+		new ugr::risk::ObstacleMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
+		new ugr::risk::WeatherMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes))
 	{
 		try
 		{
@@ -85,30 +85,26 @@ public:
 		}
 	}
 
-        using MatrixSliceType = Eigen::Matrix<ur::FPScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+	using MatrixSliceType = Eigen::Matrix<ur::FPScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
-        MatrixSliceType getZLayer(const std::string& layerName, const int zIndex) const {
-                const auto& tensorLayer = get(layerName);
+	MatrixSliceType getZLayer(const std::string& layerName, const int zIndex) const
+	{
+		const ur::Matrix tensorLayer = get(layerName);
 
-                Eigen::array<Eigen::Index, 3> offsets = {0,0,zIndex};
-                Eigen::array<Eigen::Index, 3> extents = {sizeX, sizeY, zIndex+1};
+		const Eigen::Tensor<ur::FPScalar, 2> tensorChipR2 = tensorLayer.chip(zIndex, 2);
 
-                Eigen::array<Eigen::Index, 2> outShape = {sizeX, sizeY};
-                const Eigen::Tensor<ur::FPScalar, 3> tensorSliceR3 = tensorLayer.slice(offsets, extents);
-                const Eigen::Tensor<ur::FPScalar, 2> tensorSliceR2 = tensorSliceR3.reshape(outShape);
-
-                MatrixSliceType out = Eigen::Map<const MatrixSliceType>(tensorSliceR2.data(), sizeX, sizeY);
-                return out;
-        }
+		MatrixSliceType out = Eigen::Map<const MatrixSliceType>(tensorChipR2.data(), sizeY, sizeX);
+		return out;
+	}
 
 	using ur::GroundRiskVoxelGrid::eval;
 };
 
 class PyAirRiskVoxelGrid : public ur::AirRiskVoxelGrid
 {
-public:
+ public:
 	PyAirRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, const ur::FPScalar xyRes, const ur::FPScalar zRes,
-	                   const std::string& trajPath, const std::string& airspacePath)
+		const std::string& trajPath, const std::string& airspacePath)
 		: AirRiskVoxelGrid(bounds, xyRes, zRes, trajPath, airspacePath)
 	{
 		try
@@ -142,14 +138,14 @@ public:
 
 class PyRiskVoxelGrid : public ur::RiskVoxelGrid
 {
-public:
+ public:
 	PyRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, const ur::FPScalar xyRes, const ur::FPScalar zRes,
-	                const std::string& trajPath, const std::string& airspacePath,
-	                ugr::risk::AircraftModel* aircraftModel)
+		const std::string& trajPath, const std::string& airspacePath,
+		ugr::risk::AircraftModel* aircraftModel)
 		: RiskVoxelGrid(bounds, xyRes, zRes, trajPath, airspacePath,
-		                new ugr::mapping::TemporalPopulationMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
-		                aircraftModel, new ugr::risk::ObstacleMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes),
-		                new ugr::risk::WeatherMap({bounds[0], bounds[1], bounds[3], bounds[4]}, xyRes))
+		new ugr::mapping::TemporalPopulationMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
+		aircraftModel, new ugr::risk::ObstacleMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
+		new ugr::risk::WeatherMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes))
 	{
 		try
 		{
@@ -189,36 +185,36 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 	py::class_<ur::VoxelGrid>(topModule, "VoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const char*>())
 		.def("add", overload_cast_<const std::string&, const ur::FPScalar>()(&ur::VoxelGrid::add),
-		     "Add a layer with a constant value")
+			"Add a layer with a constant value")
 		.def("add", overload_cast_<const std::string&, const ur::Matrix&>()(&ur::VoxelGrid::add),
-		     "Add a layer with a prefilled grid")
+			"Add a layer with a prefilled grid")
 		.def("at", overload_cast_<const std::string&, const ur::Index&>()(&ur::VoxelGrid::at),
-		     py::return_value_policy::reference_internal, "Return the value of the layer at a given index")
+			py::return_value_policy::reference_internal, "Return the value of the layer at a given index")
 		.def("at", overload_cast_<const std::string&, const ur::Index&>()(&ur::VoxelGrid::at, py::const_),
-		     "Return the value of the layer at a given index")
+			"Return the value of the layer at a given index")
 		.def("atPosition", overload_cast_<const std::string&, const ur::Position&>()(&ur::VoxelGrid::atPosition),
-		     py::return_value_policy::reference_internal,
-		     "Return the value of the layer at the given world coordinates")
+			py::return_value_policy::reference_internal,
+			"Return the value of the layer at the given world coordinates")
 		.def("atPosition",
-		     overload_cast_<const std::string&, const ur::Position&>()(&ur::VoxelGrid::atPosition, py::const_),
-		     "Return the value of the layer at the given world coordinates")
+			overload_cast_<const std::string&, const ur::Position&>()(&ur::VoxelGrid::atPosition, py::const_),
+			"Return the value of the layer at the given world coordinates")
 //		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get),
 //		     py::return_value_policy::reference_internal, "Return the entire tensor for a layer")
 //		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get, py::const_),
 //		     "Return the entire tensor for a layer")
 		.def("world2Local", overload_cast_<const ur::Position&>()(&ur::VoxelGrid::world2Local, py::const_),
-		     "Reproject world (EPSG:4326) coordinates to local indices")
+			"Reproject world (EPSG:4326) coordinates to local indices")
 		.def("world2Local",
-		     overload_cast_<ur::FPScalar, ur::FPScalar, ur::FPScalar>()(&ur::VoxelGrid::world2Local, py::const_),
-		     "Reproject world (EPSG:4326) coordinates to local indices")
+			overload_cast_<ur::FPScalar, ur::FPScalar, ur::FPScalar>()(&ur::VoxelGrid::world2Local, py::const_),
+			"Reproject world (EPSG:4326) coordinates to local indices")
 		.def("isInBounds", &ur::VoxelGrid::isInBounds, "Test if the given local indices is within bounds")
 		.def("writeToNetCDF", &ur::VoxelGrid::writeToNetCDF, "Write the risk layers to netCDF format for export.")
 		.def_property_readonly("size", &ur::VoxelGrid::getSize, "Return the lengths of the grid")
 		.def_property_readonly("layers", &ur::VoxelGrid::getLayers, "Return the layers in the map")
 		.def("local2World", overload_cast_<const ur::Index&>()(&ur::VoxelGrid::local2World, py::const_),
-		     "Reproject local indices to world coordinates")
+			"Reproject local indices to world coordinates")
 		.def("local2World", overload_cast_<int, int, int>()(&ur::VoxelGrid::local2World, py::const_),
-		     "Reproject local indices to world coordinates");
+			"Reproject local indices to world coordinates");
 
 	py::class_<ugr::risk::AircraftStateModel>(topModule, "AircraftStateModel")
 		.def(py::init<>())
@@ -241,19 +237,27 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 
 	py::class_<ugr::mapping::TemporalPopulationMap, ugr::mapping::PopulationMap>(topModule, "TemporalPopulationMap")
 		.def("setHourOfDay", &ugr::mapping::TemporalPopulationMap::setHourOfDay,
-		     "Set the Hour of Day for the underlying population model");
+			"Set the Hour of Day for the underlying population model");
 
 	py::class_<PyGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "GroundRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>())
-                .def("getZLayer", &PyGroundRiskVoxelGrid::getZLayer, py::return_value_policy::copy,"Extract a slice of the risk tensor at the given z Index.")
+		.def("getZLayer",
+			&PyGroundRiskVoxelGrid::getZLayer,
+			py::return_value_policy::copy,
+			"Extract a slice of the risk tensor at the given z Index.")
 		.def("eval", &PyGroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
 
 	py::class_<PyAirRiskVoxelGrid, ur::VoxelGrid>(topModule, "AirRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const
-		              std::string&>())
+		std::string&>())
 		.def("eval", &PyAirRiskVoxelGrid::eval, "Evaluate the air risk values of the voxel grid.");
 
 	py::class_<PyRiskVoxelGrid, ur::VoxelGrid>(topModule, "RiskVoxelGrid")
-		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const std::string&, PyAircraftModel*>())
+		.def(py::init<const std::array<ur::FPScalar, 6>,
+					  ur::FPScalar,
+					  ur::FPScalar,
+					  const std::string&,
+					  const std::string&,
+					  PyAircraftModel*>())
 		.def("eval", &PyRiskVoxelGrid::eval, "Evaluate the combined risk values of the voxel grid.");
 }
