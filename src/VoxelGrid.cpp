@@ -120,7 +120,7 @@ ur::Index ur::VoxelGrid::world2Local(const FPScalar lon, const FPScalar lat, con
 
 	return {
 		static_cast<int>((out.enu.e - projectionOrigin[0]) / xyRes),
-		static_cast<int>(sizeX - ((out.enu.n - projectionOrigin[1]) / xyRes)),
+		static_cast<int>(((out.enu.n - projectionOrigin[1]) / xyRes)),
 		static_cast<int>((out.enu.u - projectionOrigin[2]) / zRes)
 	};
 }
@@ -135,7 +135,7 @@ ur::Position ur::VoxelGrid::local2World(const int x, const int y, const int z) c
 	// return local2World({x, y, z});
 
 	const auto worldCoords = proj_trans(reproj, PJ_INV, {
-		static_cast<ur::FPScalar>(sizeX - x) * xyRes + projectionOrigin[0],
+		static_cast<ur::FPScalar>(x) * xyRes + projectionOrigin[0],
 		static_cast<ur::FPScalar>(y) * xyRes + projectionOrigin[1],
 		static_cast<ur::FPScalar>(z) * zRes + projectionOrigin[2]
 	});
