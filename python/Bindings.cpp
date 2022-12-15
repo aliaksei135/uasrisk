@@ -85,7 +85,7 @@ class PyGroundRiskVoxelGrid : public ur::GroundRiskVoxelGrid
 		}
 	}
 
-	using MatrixSliceType = Eigen::Matrix<ur::FPScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+	using MatrixSliceType = Eigen::Matrix<ur::FPScalar, Eigen::Dynamic, Eigen::Dynamic>;
 
 	MatrixSliceType getZLayer(const std::string& layerName, const int zIndex) const
 	{
