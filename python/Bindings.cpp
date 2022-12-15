@@ -93,7 +93,7 @@ class PyGroundRiskVoxelGrid : public ur::GroundRiskVoxelGrid
 
 		const Eigen::Tensor<ur::FPScalar, 2> tensorChipR2 = tensorLayer.chip(zIndex, 2);
 
-		MatrixSliceType out = Eigen::Map<const MatrixSliceType>(tensorChipR2.data(), sizeY, sizeX);
+		MatrixSliceType out = Eigen::Map<const MatrixSliceType>(tensorChipR2.data(), sizeX, sizeY);
 		return out;
 	}
 
