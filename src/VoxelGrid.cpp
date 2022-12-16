@@ -45,10 +45,8 @@ ur::VoxelGrid::VoxelGrid(const std::array<FPScalar, 6> bounds, const FPScalar xy
 	const int xLength = static_cast<int>(dx / static_cast<float>(xyRes));
 	const int yLength = static_cast<int>(dy / static_cast<float>(xyRes));
 
-	// x,y are swapped here to match the expected orientation of the matrix if plotted.
-	// Eigen uses row,column indexing, which would map to lat, lon not the other way around
-	this->sizeX = yLength;
-	this->sizeY = xLength;
+	this->sizeX = xLength;
+	this->sizeY = yLength;
 
 	add("Blocked");
 	add("Ground Risk");
@@ -78,12 +76,26 @@ void ur::VoxelGrid::add(const std::string& layerName, const Matrix& data)
 
 ur::FPScalar ur::VoxelGrid::at(const std::string& layerName, const Index& idx) const
 {
-	return layers.at(layerName)(idx(0), idx(1), idx(2));
+	if ((idx >= 0).all() && (idx < getSize()).all())
+	{
+		return layers.at(layerName)(idx(0), idx(1), idx(2));
+	}
+	else
+	{
+		throw std::out_of_range("Voxel Grid Index out of range");
+	}
 }
 
 ur::FPScalar& ur::VoxelGrid::at(const std::string& layerName, const Index& idx)
 {
-	return layers.at(layerName)(idx(0), idx(1), idx(2));
+	if ((idx >= 0).all() && (idx < getSize()).all())
+	{
+		return layers.at(layerName)(idx(0), idx(1), idx(2));
+	}
+	else
+	{
+		throw std::out_of_range("Voxel Grid Index out of range");
+	}
 }
 
 ur::FPScalar ur::VoxelGrid::atPosition(const std::string& layerName, const Position& pos) const
