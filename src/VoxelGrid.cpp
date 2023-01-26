@@ -82,7 +82,9 @@ ur::FPScalar ur::VoxelGrid::at(const std::string& layerName, const Index& idx) c
 	}
 	else
 	{
-		throw std::out_of_range("Voxel Grid Index out of range");
+		std::stringstream ss;
+		ss << "Voxel Grid Index (" << idx(0) << "," << idx(1) << "," << idx(2) << " out of range for grid size (" << sizeX << "," << sizeY << "," << sizeZ << ")";
+		throw std::out_of_range(ss.str());
 	}
 }
 
@@ -94,7 +96,9 @@ ur::FPScalar& ur::VoxelGrid::at(const std::string& layerName, const Index& idx)
 	}
 	else
 	{
-		throw std::out_of_range("Voxel Grid Index out of range");
+		std::stringstream ss;
+		ss << "Voxel Grid Index (" << idx(0) << "," << idx(1) << "," << idx(2) << " out of range for grid size (" << sizeX << "," << sizeY << "," << sizeZ << ")";
+		throw std::out_of_range(ss.str());
 	}
 }
 
