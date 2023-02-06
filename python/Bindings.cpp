@@ -27,8 +27,8 @@ using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
 class PyAircraftModel : public ugr::risk::AircraftModel
 {
  public:
-	PyAircraftModel(const double mass, const double width, const double length)
-		: AircraftModel(mass, width, length)
+	PyAircraftModel(const double mass, const double width, const double length, const double failureProb)
+		: AircraftModel(mass, width, length, failureProb)
 	{
 	}
 
@@ -222,7 +222,7 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 		.def_readwrite("velocity", &ugr::risk::AircraftStateModel::velocity, "Aircraft Velocity");
 
 	py::class_<PyAircraftModel>(topModule, "AircraftModel")
-		.def(py::init<double, double, double>())
+		.def(py::init<double, double, double, double>())
 		.def_readonly("mass", &PyAircraftModel::mass, "Aircraft Mass")
 		.def_readonly("length", &PyAircraftModel::length, "Aircraft Length")
 		.def_readonly("width", &PyAircraftModel::width, "Aircraft Width")
