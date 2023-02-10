@@ -134,7 +134,8 @@ set(EIGEN3_FOUND TRUE) # This doesn't get set by the conan generated find macro
 find_package(proj CONFIG REQUIRED)
 # Get Data dir in conan package
 string(TOUPPER ${CMAKE_BUILD_TYPE} ${PROJECT_NAME}_UPPER_BUILD_TYPE)
-set(PROJ_DATA ${PROJ_proj_RES_DIRS_${${PROJECT_NAME}_UPPER_BUILD_TYPE}})
+message(${${PROJECT_NAME}_UPPER_BUILD_TYPE})
+set(PROJ_DATA ${PROJ_RES_DIRS_${${PROJECT_NAME}_UPPER_BUILD_TYPE}})
 add_custom_target(UR_proj_data
 	${CMAKE_COMMAND} -E copy_directory ${PROJ_DATA} ${PROJECT_BINARY_DIR}/bin)
 add_dependencies(${PROJECT_NAME} UR_proj_data)
