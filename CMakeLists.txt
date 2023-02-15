@@ -134,8 +134,19 @@ set(EIGEN3_FOUND TRUE) # This doesn't get set by the conan generated find macro
 find_package(proj CONFIG REQUIRED)
 # Get Data dir in conan package
 string(TOUPPER ${CMAKE_BUILD_TYPE} ${PROJECT_NAME}_UPPER_BUILD_TYPE)
-message(${${PROJECT_NAME}_UPPER_BUILD_TYPE})
 set(PROJ_DATA ${PROJ_RES_DIRS_${${PROJECT_NAME}_UPPER_BUILD_TYPE}})
+# check if PROJ_DATA is empty
+if (NOT DEFINED PROJ_DATA OR PROJ_DATA STREQUAL "")
+    # Hacky way to get the data dir from the conan package
+    message(WARNING "Could not find PROJ data dir for build type ${CMAKE_BUILD_TYPE} using PROJ_RES_DIRS_${${PROJECT_NAME}_UPPER_BUILD_TYPE} config target variable")
+    set(PROJ_DATA "${PROJ_INCLUDE_DIR_${${PROJECT_NAME}_UPPER_BUILD_TYPE}}/../res/")
+    # Check that proj.db actually exists in PROJ_DATA
+    if (NOT EXISTS "${PROJ_DATA}/proj.db")
+        message(FATAL_ERROR "Could not find proj.db in assumed PROJ_DATA dir: ${PROJ_DATA}")
+    endif ()
+else ()
+    message(STATUS "Found PROJ data dir: ${PROJ_DATA}")
+endif ()
 add_custom_target(UR_proj_data
 	${CMAKE_COMMAND} -E copy_directory ${PROJ_DATA} ${PROJECT_BINARY_DIR}/bin)
 add_dependencies(${PROJECT_NAME} UR_proj_data)
