@@ -1,0 +1,71 @@
+# An arbitrary name for this riskmap config
+name:
+# The output directory. Will be created if it does not exist.
+output_path:
+# Target Level of safety. Only used for colourmapping the png and kml files
+tlos:
+
+# Define a riskmap
+riskmap:
+  # Bounds of the riskmap in decimal degrees
+  bounds:
+    north:
+    east:
+    south:
+    west:
+    # Vertical dimensions should be specified in metres AGL
+    floor:
+    ceiling:
+  # Resolution of voxels in metres
+  resolution:
+    lateral:
+    vertical:
+
+# Define the aircraft
+aircraft:
+  # Takeoff mass in kilograms
+  mass:
+  # Dimensions of airframe in metres
+  length:
+  width:
+  # Cruise groundspeed in m/s
+  speed:
+  # Aircraft failure/Loss of Control probability per flight hour
+  failure_prob:
+  # Dictionary of potential aircraft descent modes. Remove descent modes if not possible.
+  descents:
+    parachute:
+      # Drag coefficient of the deployed parachute and aircraft
+      drag_coeff:
+      # Area of the parachute
+      chute_area:
+      # Time taken after Loss of Control until full deployment of parachute
+      chute_deploy_time:
+    ballistic:
+      # Projected frontal area of the aircraft
+      frontal_area:
+      # Drag coefficient of aircraft in ballistic descent
+      drag_coeff:
+    uncontrolled_glide:
+      # V_{BG} of the aircraft
+      best_glide_airspeed:
+      # Glide *ratio* (not angle) of the aircraft
+      glide_ratio:
+
+# Define the operational environment
+environment:
+  # Define weather map
+  weather:
+    # Optional
+    wind:
+      # Wind speed in m/s
+      speed:
+      # Bearing wind is *coming from* in degrees [0,360)
+      bearing:
+  # Define population density map
+  population:
+    # Hour of the day for which to generate population density map [0,23]
+    hour:
+  # List of obstacles to include
+  obstacles:
+    - buildings
