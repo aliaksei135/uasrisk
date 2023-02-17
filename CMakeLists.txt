@@ -31,6 +31,7 @@ endif ()
 option(UR_BUILD_PYTHON_BINDINGS "Build the Python bindings for uasrisk" ON)
 option(UR_BUILD_TESTS "Build the tests for uasrisk" OFF)
 option(BUILD_SHARED_LIBS "Build as shared library" ON)
+option(UR_BUILD_CLI "Build the command line interface" ON)
 
 ###########################################################
 # Static code analysis
@@ -228,6 +229,10 @@ install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+
+IF(UR_BUILD_CLI)
+    add_subdirectory(cli)
+endif()
 
 
 #############################################################
