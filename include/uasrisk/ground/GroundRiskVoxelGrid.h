@@ -19,10 +19,10 @@ namespace ur
 
 		~GroundRiskVoxelGrid()
 		{
-			delete populationMap;
-			delete aircraftModel;
-			delete obstacleMap;
-			delete weatherMap;
+//			delete populationMap;
+//			delete aircraftModel;
+//			delete obstacleMap;
+//			delete weatherMap;
 		}
 
 		void eval();
