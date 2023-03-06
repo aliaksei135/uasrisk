@@ -6,6 +6,7 @@ RUN pip install conan==1.59.0
 WORKDIR /srv
 RUN git clone --recursive https://github.com/aliaksei135/uasrisk.git uasrisk
 RUN --mount=type=cache,target=~/.conan/data,sharing=locked cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DUR_BUILD_CLI=ON -G Ninja -S uasrisk -B uasrisk-build
-RUN cd uasrisk-build && ninja  && ninja install
+RUN cd uasrisk-build && ninja && ninja install
+RUN ldconfig
 
 ENTRYPOINT ["/usr/local/bin/uasrisk-cli"]
