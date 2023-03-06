@@ -30,7 +30,7 @@ setup(
     license="Proprietary",
     packages=['pyuasrisk', 'pyuasrisk.data'],
     cmake_install_dir="python/pyuasrisk",
-    cmake_args=[f"-DUGR_DATA_DIR={package_data_dir}"],
+    cmake_args=[f"-DUGR_DATA_DIR={package_data_dir}", "-DUR_BUILD_CLI=OFF"],
     include_package_data=True,
     package_data={"pyuasrisk": ["data/*.*"]},
     package_dir={"": "python"},
