@@ -120,10 +120,37 @@ if (NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
             TLS_VERIFY ON)
 endif ()
 include(${CMAKE_BINARY_DIR}/conan.cmake)
+conan_cmake_autodetect(settings)
 
-conan_cmake_run(CONANFILE conanfile.txt
-        BASIC_SETUP
-        BUILD missing)
+if(NOT CONAN_CMD)
+    find_program(CONAN_CMD conan)
+    if(NOT CONAN_CMD AND CONAN_REQUIRED)
+        message(FATAL_ERROR "Conan executable not found! Please install conan.")
+    endif()
+endif()
+execute_process(COMMAND ${CONAN_CMD} --version
+        RESULT_VARIABLE return_code
+        OUTPUT_VARIABLE CONAN_VERSION_OUTPUT
+        ERROR_VARIABLE CONAN_VERSION_OUTPUT)
+if(NOT "${return_code}" STREQUAL "0")
+    message(FATAL_ERROR "Conan --version failed='${return_code}'")
+endif()
+string(REGEX MATCH ".*Conan version ([0-9]+\\.[0-9]+\\.[0-9]+)" FOO "${CONAN_VERSION_OUTPUT}")
+set(CONAN_VERSION ${CMAKE_MATCH_1})
+message(STATUS "Checking conan version...")
+message(STATUS "Using conan: ${CONAN_CMD}")
+message(STATUS "Conan version: ${CONAN_VERSION}")
+
+# Ensure conan version is less than 2.0.0
+if (CONAN_VERSION VERSION_GREATER_EQUAL "2.0.0")
+    message(FATAL_ERROR "Conan version 2.0.0 or greater is not supported. Please install conan version 1.59.0 or less.")
+endif ()
+
+set(CONAN_COMMAND ${CONAN_CMD})
+conan_cmake_install(PATH_OR_REFERENCE ${CMAKE_CURRENT_LIST_DIR}/conanfile.txt
+        BUILD missing
+        SETTINGS ${settings}
+        )
 
 # Don't build tests for deps
 set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
