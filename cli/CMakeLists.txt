@@ -117,8 +117,8 @@ target_link_libraries(uasrisk-cli PRIVATE yaml-cpp)
 find_package(GDAL CONFIG REQUIRED)
 target_link_libraries(uasrisk-cli PRIVATE GDAL::GDAL)
 
-find_package(PNG CONFIG REQUIRED)
-target_link_libraries(uasrisk-cli PUBLIC pngpp:pngpp)
+find_package(pngpp CONFIG REQUIRED)
+target_link_libraries(uasrisk-cli PRIVATE pngpp::pngpp)
 
 find_package(zip CONFIG REQUIRED)
 target_link_libraries(uasrisk-cli PRIVATE zip::zip)
