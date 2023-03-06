@@ -157,7 +157,7 @@ set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
 # Eigen required for lin alg
 find_package(Eigen3 CONFIG REQUIRED)
-set(EIGEN3_FOUND TRUE) # This doesn't get set by the conan generated find macro
+target_link_libraries(${PROJECT_NAME} PUBLIC Eigen3::Eigen3)
 
 find_package(proj CONFIG REQUIRED)
 # Get Data dir in conan package
@@ -197,6 +197,7 @@ find_package(netCDF CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE netCDF::netcdf)
 
 find_package(Boost REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC Boost::Boost)
 
 find_package(RapidJSON REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE RapidJSON::RapidJSON)
