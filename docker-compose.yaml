@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  uasrisk:
+    # Name of the image. Version could change. Check what images you have by `docker image ls`
+    image: uasrisk-cli:0.1
+    volumes:
+      # This is in the format of <host path>:<container path>. Currently mounts to the location of this compose file
+      # Spaces in the paths are not recommended, but should you wish to play with fire, the entire mapping should be in double quotes
+      # like this: "<host path with spaces>:<container path with spaces>"
+      - .:/srv
+    # Path of riskmap config file inside the container. This is <container path from above>/<riskmap config file>
+    command: /srv/riskmap.yml
