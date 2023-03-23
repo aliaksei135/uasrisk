@@ -19,6 +19,7 @@
 #include "uasgroundrisk/map_gen/TemporalPopulationMap.h"
 #include "uasrisk/RiskVoxelGrid.h"
 #include "uasrisk/air/AirRiskVoxelGrid.h"
+#include "uasrisk/ground/IncrementalGroundRiskVoxelGrid.h"
 
 namespace py = pybind11;
 template<typename... Args>
@@ -98,6 +99,22 @@ class PyGroundRiskVoxelGrid : public ur::GroundRiskVoxelGrid
 	}
 
 	using ur::GroundRiskVoxelGrid::eval;
+};
+
+class PyIncrementalGroundRiskVoxelGrid : public ur::IncrementalGroundRiskVoxelGrid
+{
+ public:
+	PyIncrementalGroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, ur::FPScalar xyRes,
+		ur::FPScalar zRes, ugr::risk::AircraftModel* aircraftModel) : IncrementalGroundRiskVoxelGrid(
+		bounds, xyRes, zRes,
+		new ugr::mapping::TemporalPopulationMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
+		aircraftModel,
+		new ugr::risk::ObstacleMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
+		new ugr::risk::WeatherMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes))
+	{
+	}
+
+	using ur::IncrementalGroundRiskVoxelGrid::getPointRisk;
 };
 
 class PyAirRiskVoxelGrid : public ur::AirRiskVoxelGrid
@@ -246,6 +263,10 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 			py::return_value_policy::copy,
 			"Extract a slice of the risk tensor at the given z Index.")
 		.def("eval", &PyGroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
+
+	py::class_<PyIncrementalGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "IncrementalGroundRiskVoxelGrid")
+		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>())
+		.def("getPointRisk", &PyIncrementalGroundRiskVoxelGrid::getPointRisk, "Get the risk at a given point");
 
 	py::class_<PyAirRiskVoxelGrid, ur::VoxelGrid>(topModule, "AirRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const
