@@ -11,3 +11,4 @@ cmake_find_package_multi
  bin, *.dll -> ./bin # Copies all dll files from packages bin folder to my "bin" folder
  lib, *.dylib* -> ./bin # Copies all dylib files from packages lib folder to my "bin" folder
  lib, *.so* -> ./bin # Copies all so files from packages lib folder to my "bin" folder
+ lib, *.a* -> ./bin # Copies all a files from packages lib folder to my "bin" folder
