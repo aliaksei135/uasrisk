@@ -8,13 +8,20 @@
 #include <cpl_conv.h>
 #include <png++/png.hpp>
 #include <colormap/colormap.hpp>
-#include <zip/zip.h>
 
 #include <uasgroundrisk/risk_analysis/aircraft/AircraftModel.h>
 #include "uasgroundrisk/risk_analysis/weather/WeatherMap.h"
 #include "uasgroundrisk/map_gen/TemporalPopulationMap.h"
 #include "uasgroundrisk/risk_analysis/obstacles/ObstacleMap.h"
 #include "uasrisk/ground/GroundRiskVoxelGrid.h"
+
+namespace kuba
+{
+	extern "C"
+	{
+#include <zip/zip.h>
+	}
+}
 
 void help()
 {
@@ -298,17 +305,18 @@ int main(int argc, char* argv[])
 		kmlFile << "</kml>\n";
 		kmlFile.close();
 
-		struct zip_t* kmzZip = zip_open((outPath / "output.kmz").c_str(), ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
+		struct kuba::zip_t
+			* kmzZip = kuba::zip_open((outPath / "output.kmz").c_str(), ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
 		for (const auto& file : std::filesystem::directory_iterator(kmlDataPath))
 		{
 			if (!file.is_directory())
 			{
-				zip_entry_open(kmzZip, file.path().filename().c_str());
-				zip_entry_fwrite(kmzZip, file.path().c_str());
-				zip_entry_close(kmzZip);
+				kuba::zip_entry_open(kmzZip, file.path().filename().c_str());
+				kuba::zip_entry_fwrite(kmzZip, file.path().c_str());
+				kuba::zip_entry_close(kmzZip);
 			}
 		}
-		zip_close(kmzZip);
+		kuba::zip_close(kmzZip);
 
 		grvg.writeToNetCDF(outPath / "ground_risk_voxel_grid.nc");
 	}
