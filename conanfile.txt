@@ -1,13 +1,13 @@
 [requires]
 eigen/[>3.3.9]
-netcdf/4.7.4
-proj/8.2.1
+netcdf/4.8.1
+proj/9.1.1
 libcurl/[>=7.79.0]
 zlib/[>=1.2.13]
 boost/1.78.0
-rapidjson/cci.20211112
-fast-cpp-csv-parser/cci.20200830
-pugixml/1.11
+rapidjson/cci.20220822
+fast-cpp-csv-parser/cci.20211104
+pugixml/1.13
 spdlog/[>=1.10.0]
 
 [generators]

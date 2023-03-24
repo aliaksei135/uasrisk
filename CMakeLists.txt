@@ -32,6 +32,7 @@ option(UR_BUILD_PYTHON_BINDINGS "Build the Python bindings for uasrisk" ON)
 option(UR_BUILD_TESTS "Build the tests for uasrisk" OFF)
 option(BUILD_SHARED_LIBS "Build as shared library" ON)
 option(UR_BUILD_CLI "Build the command line interface" ON)
+option(UR_UGR_GIT_TAG "The version of uasgroundrisk to use" origin/master)
 
 ###########################################################
 # Static code analysis
@@ -214,7 +215,7 @@ message("BUILDING UGR")
 FetchContent_Declare(
         uasgroundrisk
         GIT_REPOSITORY https://github.com/aliaksei135/uasgroundrisk.git
-        GIT_TAG origin/master
+        GIT_TAG ${UR_UGR_GIT_TAG}
 )
 FetchContent_MakeAvailable(uasgroundrisk)
 target_link_libraries(${PROJECT_NAME} PUBLIC uasgroundrisk)
