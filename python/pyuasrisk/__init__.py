@@ -12,6 +12,10 @@ elif os.path.exists(current_dir / 'lib64'):
 for lib in lib_dir.glob('*'):
     cdll.LoadLibrary(lib)
 
-from ._pyuasrisk import __version__, __doc__, VoxelGrid, GroundRiskVoxelGrid, AirRiskVoxelGrid, RiskVoxelGrid, AircraftModel, AircraftStateModel, PopulationMap, TemporalPopulationMap
+from ._pyuasrisk import __version__, __doc__, VoxelGrid, GridMap, GeospatialGridMap, AircraftStateModel, AircraftModel, \
+    PopulationMap, TemporalPopulationMap, ObstacleMap, WeatherMap, FullGroundRiskVoxelGrid, GroundRiskVoxelGrid, \
+    IncrementalGroundRiskVoxelGrid, AirRiskVoxelGrid, RiskVoxelGrid
 
-__all__ = ["VoxelGrid", "GroundRiskVoxelGrid", "AirRiskVoxelGrid", "RiskVoxelGrid", "AircraftModel", "AircraftStateModel", "PopulationMap", "TemporalPopulationMap"]
+__all__ = ["VoxelGrid", "GridMap", "GeospatialGridMap", "AircraftStateModel", "AircraftModel", "PopulationMap",
+           "TemporalPopulationMap", "ObstacleMap", "WeatherMap", "FullGroundRiskVoxelGrid", "GroundRiskVoxelGrid",
+           "IncrementalGroundRiskVoxelGrid", "AirRiskVoxelGrid", "RiskVoxelGrid"]
