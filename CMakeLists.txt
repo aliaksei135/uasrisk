@@ -34,6 +34,13 @@ option(BUILD_SHARED_LIBS "Build as shared library" ON)
 option(UR_BUILD_CLI "Build the command line interface" ON)
 option(UR_UGR_GIT_TAG "The version of uasgroundrisk to use" origin/master)
 
+# Enable all targets if using CLion otherwise everything breaks :/
+if ($ENV{CLION_IDE})
+    set(UR_BUILD_PYTHON_BINDINGS ON)
+    set(UR_BUILD_TESTS ON)
+    set(UR_BUILD_CLI ON)
+endif ()
+
 ###########################################################
 # Static code analysis
 ###########################################################
@@ -209,18 +216,19 @@ find_package(pugixml REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE pugixml::pugixml)
 
 find_package(spdlog CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
 
-message("BUILDING UGR")
+message(STATUS "BUILDING uasgroundrisk...")
 FetchContent_Declare(
         uasgroundrisk
         GIT_REPOSITORY https://github.com/aliaksei135/uasgroundrisk.git
-        GIT_TAG ${UR_UGR_GIT_TAG}
+        GIT_TAG 2a72604229b547cc80c895e56829f4ddb8f0dae8
 )
 FetchContent_MakeAvailable(uasgroundrisk)
 target_link_libraries(${PROJECT_NAME} PUBLIC uasgroundrisk)
 
 if(UR_BUILD_PYTHON_BINDINGS)
+    message(STATUS "Building Python bindings...")
     add_subdirectory(extern/pybind11)
     add_subdirectory(python)
 endif()
@@ -260,6 +268,7 @@ install(TARGETS ${PROJECT_NAME}
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
 IF(UR_BUILD_CLI)
+    message(STATUS "Building CLI...")
     add_subdirectory(cli)
 endif()
 
