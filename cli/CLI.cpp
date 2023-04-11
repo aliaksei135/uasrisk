@@ -15,12 +15,88 @@
 #include "uasgroundrisk/risk_analysis/obstacles/ObstacleMap.h"
 #include "uasrisk/ground/GroundRiskVoxelGrid.h"
 
-namespace kuba
+#include <dirent.h>
+#include <sys/stat.h>
+#include <zlib.h>
+
+#define CHUNK_SIZE 16384
+
+void zip_directory(const char* directory_path, const char* zip_path)
 {
-	extern "C"
+	// Open the zip file for writing
+	gzFile zip = gzopen(zip_path, "wb");
+	if (zip == nullptr)
 	{
-#include <zip/zip.h>
+		fprintf(stderr, "Failed to create zip: %s\n", strerror(errno));
+		return;
 	}
+
+	// Open the directory
+	DIR* dir = opendir(directory_path);
+	if (dir == nullptr)
+	{
+		fprintf(stderr, "Failed to open directory: %s\n", strerror(errno));
+		gzclose(zip);
+		return;
+	}
+
+	// Read the directory entries
+	struct dirent* entry;
+	struct stat statbuf;
+	char entry_path[PATH_MAX];
+	while ((entry = readdir(dir)) != nullptr)
+	{
+		// Skip . and ..
+		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+		{
+			continue;
+		}
+
+		// Compose the full entry path
+		snprintf(entry_path, sizeof(entry_path), "%s/%s", directory_path, entry->d_name);
+
+		// Get the entry's stat
+		if (stat(entry_path, &statbuf) == -1)
+		{
+			fprintf(stderr, "Failed to get stat for entry '%s': %s\n", entry_path, strerror(errno));
+			continue;
+		}
+
+		if (S_ISDIR(statbuf.st_mode))
+		{
+			// Recursively compress directories
+			zip_directory(entry_path, entry->d_name);
+		}
+		else if (S_ISREG(statbuf.st_mode))
+		{
+			// Compress regular files
+			FILE* entry_file = fopen(entry_path, "rb");
+			if (entry_file == nullptr)
+			{
+				fprintf(stderr, "Failed to open file '%s': %s\n", entry_path, strerror(errno));
+				continue;
+			}
+
+			// Write compressed data to the zip file
+			char buffer[CHUNK_SIZE];
+			int read_bytes;
+			while ((read_bytes = fread(buffer, 1, sizeof(buffer), entry_file)) > 0)
+			{
+				if (gzwrite(zip, buffer, read_bytes) != read_bytes)
+				{
+					fprintf(stderr, "Failed to write to zip: %s\n", gzerror(zip, nullptr));
+					fclose(entry_file);
+					gzclose(zip);
+					return;
+				}
+			}
+
+			fclose(entry_file);
+		}
+	}
+
+	closedir(dir);
+	gzclose(zip);
 }
 
 void help()
@@ -305,18 +381,7 @@ int main(int argc, char* argv[])
 		kmlFile << "</kml>\n";
 		kmlFile.close();
 
-		struct kuba::zip_t
-			* kmzZip = kuba::zip_open((outPath / "output.kmz").c_str(), ZIP_DEFAULT_COMPRESSION_LEVEL, 'w');
-		for (const auto& file : std::filesystem::directory_iterator(kmlDataPath))
-		{
-			if (!file.is_directory())
-			{
-				kuba::zip_entry_open(kmzZip, file.path().filename().c_str());
-				kuba::zip_entry_fwrite(kmzZip, file.path().c_str());
-				kuba::zip_entry_close(kmzZip);
-			}
-		}
-		kuba::zip_close(kmzZip);
+		zip_directory(kmlDataPath.c_str(), (outPath / "output.kmz").c_str());
 
 		grvg.writeToNetCDF(outPath / "ground_risk_voxel_grid.nc");
 	}

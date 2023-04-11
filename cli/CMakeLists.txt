@@ -28,9 +28,9 @@ endif ()
 ###########################################################
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     set(ENABLE_CPPCHECK OFF)
-else()
+else ()
     set(ENABLE_CPPCHECK ON)
-endif()
+endif ()
 if (MSVC)
     set(ENABLE_CLANG_TIDY OFF)
 else ()
@@ -61,7 +61,9 @@ if (ENABLE_CLANG_TIDY)
     endif ()
 endif ()
 
-add_executable(uasrisk-cli CLI.cpp)
+add_executable(uasrisk-cli
+        CLI.cpp
+        )
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_BINARY_DIR})
 list(APPEND CMAKE_PREFIX_PATH ${PROJECT_BINARY_DIR})
@@ -75,19 +77,19 @@ endif ()
 include(${CMAKE_BINARY_DIR}/conan.cmake)
 conan_cmake_autodetect(settings)
 
-if(NOT CONAN_CMD)
+if (NOT CONAN_CMD)
     find_program(CONAN_CMD conan)
-    if(NOT CONAN_CMD AND CONAN_REQUIRED)
+    if (NOT CONAN_CMD AND CONAN_REQUIRED)
         message(FATAL_ERROR "Conan executable not found! Please install conan.")
-    endif()
-endif()
+    endif ()
+endif ()
 execute_process(COMMAND ${CONAN_CMD} --version
         RESULT_VARIABLE return_code
         OUTPUT_VARIABLE CONAN_VERSION_OUTPUT
         ERROR_VARIABLE CONAN_VERSION_OUTPUT)
-if(NOT "${return_code}" STREQUAL "0")
+if (NOT "${return_code}" STREQUAL "0")
     message(FATAL_ERROR "Conan --version failed='${return_code}'")
-endif()
+endif ()
 string(REGEX MATCH ".*Conan version ([0-9]+\\.[0-9]+\\.[0-9]+)" FOO "${CONAN_VERSION_OUTPUT}")
 set(CONAN_VERSION ${CMAKE_MATCH_1})
 message(STATUS "Checking conan version...")
@@ -120,8 +122,8 @@ target_link_libraries(uasrisk-cli PRIVATE GDAL::GDAL)
 find_package(pngpp CONFIG REQUIRED)
 target_link_libraries(uasrisk-cli PRIVATE pngpp::pngpp)
 
-find_package(zip CONFIG REQUIRED)
-target_link_libraries(uasrisk-cli PRIVATE zip::zip)
+find_package(ZLIB CONFIG REQUIRED)
+target_link_libraries(uasrisk-cli PRIVATE ZLIB::ZLIB)
 
 FetchContent_Declare(
         colormap

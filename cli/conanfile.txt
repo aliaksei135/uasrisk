@@ -2,7 +2,8 @@
 yaml-cpp/0.7.0
 gdal/3.5.2
 pngpp/0.2.10
-kuba-zip/0.2.6
+zlib/1.2.13
+openssl/1.1.1t
 
 [generators]
 cmake_find_package_multi
