@@ -2,12 +2,36 @@
 requires = [
     "setuptools",
     "wheel",
-    "scikit-build>=0.13",
+    "scikit-build-core>=0.2.1",
     "cmake",
     "ninja",
     "conan==1.59.0",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "scikit_build_core.build"
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
+[project]
+name = "pyuasrisk"
+version = "0.0.1"
+description="Risk calculation for Unmanned Aerial Systems"
+authors = [
+  { name = "Aliaksei Pilko", email = "dev@apilko.me" },
+]
+requires-python = ">=3.7"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: Other/Proprietary License",
+  "Operating System :: Unix",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+]
+
+[project.optional-dependencies]
+test = ["pytest", "numpy"]
+
+[tool.cibuildwheel]
+test-command = "pytest {project}/tests"
+test-extras = ["test"]
+build-verbosity = 1
