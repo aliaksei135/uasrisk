@@ -2,12 +2,13 @@
 requires = [
     "setuptools",
     "wheel",
-    "scikit-build-core>=0.2.1",
+    "scikit-build>=0.13",
     "cmake",
     "ninja",
     "conan==1.59.0",
 ]
-build-backend = "scikit_build_core.build"
+build-backend = "setuptools.build_meta"
+
 
 [project]
 name = "pyuasrisk"
