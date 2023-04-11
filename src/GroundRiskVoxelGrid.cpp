@@ -20,8 +20,8 @@ void ur::GroundRiskVoxelGrid::eval()
 	add("Ground Fatality Risk", 0);
 
 
-	auto& groundStrikeRiskTensor = get("Ground Strike Risk");
-	auto& groundFatalityRiskTensor = get("Ground Fatality Risk");
+	auto groundStrikeRiskTensor = get("Ground Strike Risk");
+	auto groundFatalityRiskTensor = get("Ground Fatality Risk");
 
 	for (int z = 0; z < sizeZ; ++z)
 	{

@@ -1,8 +1,6 @@
 #include <iostream>
 
 #include "uasrisk/environment/VoxelGrid.h"
-#include "uasrisk/ground/GroundRiskVoxelGrid.h"
-#include "uasgroundrisk/risk_analysis/RiskMap.h"
 
 #include <Eigen/Dense>
 
@@ -11,147 +9,16 @@
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
 #include "pybind11_eigen_tensor.h"
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/basic_file_sink.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
-#include "spdlog/pattern_formatter.h"
 
-#include "uasgroundrisk/map_gen/TemporalPopulationMap.h"
 #include "uasrisk/RiskVoxelGrid.h"
-#include "uasrisk/air/AirRiskVoxelGrid.h"
-#include "uasrisk/ground/IncrementalGroundRiskVoxelGrid.h"
+#include "uasgroundrisk/map_gen/GeospatialGridMap.h"
+
+#include "GroundRiskHelpers.h"
+#include "AirRiskHelpers.h"
 
 namespace py = pybind11;
 template<typename... Args>
 using overload_cast_ = pybind11::detail::overload_cast_impl<Args...>;
-
-class PyAircraftModel : public ugr::risk::AircraftModel
-{
- public:
-	PyAircraftModel(const double mass, const double width, const double length, const double failureProb)
-		: AircraftModel(mass, width, length, failureProb)
-	{
-	}
-
-	void addGlideDescentModel(double glideAirspeed, double glideRatio)
-	{
-		addDescentModel<ugr::risk::GlideDescentModel>(glideAirspeed, glideRatio);
-	}
-
-	void addBallisticDescentModel(double ballisticFrontalArea, double ballisticDragCoeff)
-	{
-		addDescentModel<ugr::risk::BallisticDescentModel>(ballisticFrontalArea, ballisticDragCoeff);
-	}
-
-	void addParachuteDescentModel(double parachuteDragCoeff, double parachuteArea, double parachuteDeployTime)
-	{
-		addDescentModel<ugr::risk::ParachuteDescentModel>(parachuteDragCoeff, parachuteArea, parachuteDeployTime);
-	}
-};
-
-class PyGroundRiskVoxelGrid : public ur::GroundRiskVoxelGrid
-{
- public:
-	PyGroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, ur::FPScalar xyRes,
-		ur::FPScalar zRes, ugr::risk::AircraftModel* aircraftModel) : GroundRiskVoxelGrid(
-		bounds, xyRes, zRes,
-		new ugr::mapping::TemporalPopulationMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
-		aircraftModel,
-		new ugr::risk::ObstacleMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
-		new ugr::risk::WeatherMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes))
-	{
-		try
-		{
-			auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-			console_sink->set_level(spdlog::level::trace);
-			console_sink->set_pattern("[uasrisk] [%^%l%$] %v");
-
-			auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/uasrisk.out.log", true);
-			file_sink->set_level(spdlog::level::trace);
-
-			spdlog::sinks_init_list sink_list = { file_sink, console_sink };
-
-			spdlog::logger logger("uasrisk", sink_list.begin(), sink_list.end());
-			logger.set_level(spdlog::level::trace);
-			logger.warn("this should appear in both console and file");
-			logger.info("this message should not appear in the console, only in the file");
-
-			// or you can even set multi_sink logger as default logger
-			spdlog::set_default_logger(
-				std::make_shared<spdlog::logger>("uasrisk", spdlog::sinks_init_list({ console_sink, file_sink })));
-		}
-		catch (const spdlog::spdlog_ex& ex)
-		{
-			std::cout << "Log initialization failed: " << ex.what() << std::endl;
-		}
-	}
-
-	using MatrixSliceType = Eigen::Matrix<ur::FPScalar, Eigen::Dynamic, Eigen::Dynamic>;
-
-	MatrixSliceType getZLayer(const std::string& layerName, const int zIndex) const
-	{
-		const ur::Matrix tensorLayer = get(layerName);
-
-		const Eigen::Tensor<ur::FPScalar, 2> tensorChipR2 = tensorLayer.chip(zIndex, 2);
-
-		MatrixSliceType out = Eigen::Map<const MatrixSliceType>(tensorChipR2.data(), sizeX, sizeY);
-		return out;
-	}
-
-	using ur::GroundRiskVoxelGrid::eval;
-};
-
-class PyIncrementalGroundRiskVoxelGrid : public ur::IncrementalGroundRiskVoxelGrid
-{
- public:
-	PyIncrementalGroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, ur::FPScalar xyRes,
-		ur::FPScalar zRes, ugr::risk::AircraftModel* aircraftModel) : IncrementalGroundRiskVoxelGrid(
-		bounds, xyRes, zRes,
-		new ugr::mapping::TemporalPopulationMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
-		aircraftModel,
-		new ugr::risk::ObstacleMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
-		new ugr::risk::WeatherMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes))
-	{
-	}
-
-	using ur::IncrementalGroundRiskVoxelGrid::getPointRisk;
-};
-
-class PyAirRiskVoxelGrid : public ur::AirRiskVoxelGrid
-{
- public:
-	PyAirRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, const ur::FPScalar xyRes, const ur::FPScalar zRes,
-		const std::string& trajPath, const std::string& airspacePath)
-		: AirRiskVoxelGrid(bounds, xyRes, zRes, trajPath, airspacePath)
-	{
-		try
-		{
-			auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-			console_sink->set_level(spdlog::level::trace);
-			console_sink->set_pattern("[uasrisk] [%^%l%$] %v");
-
-			auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/uasrisk.out.log", true);
-			file_sink->set_level(spdlog::level::trace);
-
-			spdlog::sinks_init_list sink_list = { file_sink, console_sink };
-
-			spdlog::logger logger("uasrisk", sink_list.begin(), sink_list.end());
-			logger.set_level(spdlog::level::trace);
-			logger.warn("this should appear in both console and file");
-			logger.info("this message should not appear in the console, only in the file");
-
-			// or you can even set multi_sink logger as default logger
-			spdlog::set_default_logger(
-				std::make_shared<spdlog::logger>("uasrisk", spdlog::sinks_init_list({ console_sink, file_sink })));
-		}
-		catch (const spdlog::spdlog_ex& ex)
-		{
-			std::cout << "Log initialization failed: " << ex.what() << std::endl;
-		}
-	}
-
-	using ur::AirRiskVoxelGrid::eval;
-};
 
 class PyRiskVoxelGrid : public ur::RiskVoxelGrid
 {
@@ -198,6 +65,9 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 	topModule.doc() = "Risk estimation for uncrewed aerial systems";
 	topModule.attr("__version__") = "0.0.1"; //TODO grab from CMake defines
 
+	////////////////////////////////////////////////////////////////
+	// Base GridMap / VoxelGrid Classes
+	////////////////////////////////////////////////////////////////
 	// auto voxelGridModule = topModule.def_submodule("environment");
 	py::class_<ur::VoxelGrid>(topModule, "VoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const char*>())
@@ -233,6 +103,55 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 		.def("local2World", overload_cast_<int, int, int>()(&ur::VoxelGrid::local2World, py::const_),
 			"Reproject local indices to world coordinates");
 
+	py::class_<ugr::gridmap::GridMap>(topModule, "GridMap")
+		.def(py::init<>())
+		.def("add", overload_cast_<const std::string&, const double>()(&ugr::gridmap::GridMap::add),
+			"Add a layer with a constant value")
+		.def("add", overload_cast_<const std::string&, const ugr::gridmap::Matrix&>()(&ugr::gridmap::GridMap::add),
+			"Add a layer with a prefilled grid")
+		.def("at", overload_cast_<const std::string&, const ugr::gridmap::Index&>()(&ugr::gridmap::GridMap::at),
+			py::return_value_policy::reference_internal, "Return the value of the layer at a given index")
+		.def("at",
+			overload_cast_<const std::string&, const ugr::gridmap::Index&>()(&ugr::gridmap::GridMap::at, py::const_),
+			"Return the value of the layer at a given index")
+//		.def("get", overload_cast_<const std::string&>()(&ugr::gridmap::GridMap::get),
+//		     py::return_value_policy::reference_internal, "Return the entire tensor for a layer")
+//		.def("get", overload_cast_<const std::string&>()(&ugr::gridmap::GridMap::get, py::const_),
+//		     "Return the entire tensor for a layer")
+		.def("isInBounds", &ugr::gridmap::GridMap::isInBounds, "Test if the given local indices is within bounds")
+		.def("writeToNetCDF",
+			&ugr::gridmap::GridMap::writeToNetCDF,
+			"Write the risk layers to netCDF format for export.")
+		.def_property_readonly("size", &ugr::gridmap::GridMap::getSize, "Return the lengths of the grid")
+		.def_property_readonly("layers", &ugr::gridmap::GridMap::getLayers, "Return the layers in the map");
+
+	py::class_<ugr::mapping::GeospatialGridMap, ugr::gridmap::GridMap>(topModule, "GeospatialGridMap")
+		.def(py::init<std::array<float, 4>, float>())
+		.def("world2Local",
+			overload_cast_<const ugr::mapping::Position&>()(&ugr::mapping::GeospatialGridMap::world2Local, py::const_),
+			"Reproject world coordinates to local indices")
+		.def("local2World",
+			overload_cast_<const ugr::gridmap::Index&>()(&ugr::mapping::GeospatialGridMap::local2World, py::const_),
+			"Reproject local indices to world coordinates")
+		.def("atPosition",
+			overload_cast_<const std::string&,
+						   const ugr::gridmap::Position&>()(&ugr::mapping::GeospatialGridMap::atPosition),
+			py::return_value_policy::reference_internal,
+			"Return the value of the layer at the given world coordinates")
+		.def("atPosition",
+			overload_cast_<const std::string&,
+						   const ugr::gridmap::Position&>()(&ugr::mapping::GeospatialGridMap::atPosition, py::const_),
+			"Return the value of the layer at the given world coordinates")
+		.def("isInBounds",
+			&ugr::mapping::GeospatialGridMap::isInBounds,
+			"Test if the given local indices is within bounds")
+		.def_property_readonly("size", &ugr::mapping::GeospatialGridMap::getSize, "Return the lengths of the grid")
+		.def_property_readonly("layers", &ugr::mapping::GeospatialGridMap::getLayers, "Return the layers in the map")
+		.def("eval", &ugr::mapping::GeospatialGridMap::eval, "Evaluate the grid map at a given position");
+
+	////////////////////////////////////////////////////////////////
+	// UGR Aircraft Model
+	////////////////////////////////////////////////////////////////
 	py::class_<ugr::risk::AircraftStateModel>(topModule, "AircraftStateModel")
 		.def(py::init<>())
 		.def_readwrite("position", &ugr::risk::AircraftStateModel::position, "Aircraft Position")
@@ -248,13 +167,40 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 		.def("addBallisticDescentModel", &PyAircraftModel::addBallisticDescentModel, "Add ballistic descent model")
 		.def("addParachuteDescentModel", &PyAircraftModel::addParachuteDescentModel, "Add parachute descent model");
 
-	py::class_<ugr::mapping::PopulationMap>(topModule, "PopulationMap")
+	////////////////////////////////////////////////////////////////
+	// UGR Population Mapping
+	////////////////////////////////////////////////////////////////
+	py::class_<ugr::mapping::PopulationMap, ugr::mapping::GeospatialGridMap>(topModule, "PopulationMap")
 		.def(py::init<const std::array<float, 4>, int>())
 		.def("eval", &ugr::mapping::PopulationMap::eval, "Evaluate the population map");
 
 	py::class_<ugr::mapping::TemporalPopulationMap, ugr::mapping::PopulationMap>(topModule, "TemporalPopulationMap")
 		.def("setHourOfDay", &ugr::mapping::TemporalPopulationMap::setHourOfDay,
 			"Set the Hour of Day for the underlying population model");
+
+	////////////////////////////////////////////////////////////////
+	// UGR Auxiliary Maps
+	////////////////////////////////////////////////////////////////
+
+	py::class_<ugr::risk::ObstacleMap, ugr::mapping::GeospatialGridMap>(topModule, "ObstacleMap")
+		.def("addOSMLayer", &ugr::risk::ObstacleMap::addOSMLayer, "Add an OSM layer to the map as an obstacle")
+		.def("addBuildingHeights", &ugr::risk::ObstacleMap::addBuildingHeights, "Add OSM building heights to the map");
+
+	py::class_<ugr::risk::WeatherMap, ugr::mapping::GeospatialGridMap>(topModule, "WeatherMap")
+		.def("addConstantWind", &ugr::risk::WeatherMap::addConstantWind, "Add a constant wind to the map");
+
+	////////////////////////////////////////////////////////////////
+	// UR Voxel Risk Grids
+	////////////////////////////////////////////////////////////////
+	py::class_<ur::GroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "FullGroundRiskVoxelGrid")
+		.def(py::init<const std::array<ur::FPScalar, 6>,
+					  ur::FPScalar,
+					  ur::FPScalar,
+					  ugr::mapping::PopulationMap*,
+					  PyAircraftModel*,
+					  ugr::risk::ObstacleMap*,
+					  ugr::risk::WeatherMap*>());
+
 
 	py::class_<PyGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "GroundRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>())

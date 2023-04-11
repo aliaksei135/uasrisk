@@ -3,7 +3,7 @@
 
 #include <unsupported/Eigen/CXX11/Tensor>
 
-#include <boost/geometry.hpp>
+#include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
 
 BOOST_GEOMETRY_REGISTER_POINT_3D(Eigen::Vector3f, double, cs::cartesian, x(), y(), z())
