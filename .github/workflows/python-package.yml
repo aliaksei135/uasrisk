@@ -37,6 +37,9 @@ jobs:
 
       - uses: pypa/cibuildwheel@v2.12.1
         env:
+          CIBW_BEFORE_ALL: >
+            export CC=/opt/rh/devtoolset-10/root/usr/bin/cc &&
+            export CXX=/opt/rh/devtoolset-10/root/usr/bin/c++
           CIBW_ARCHS_MACOS: universal2
           CIBW_ARCHS_WINDOWS: auto ARM64
 
