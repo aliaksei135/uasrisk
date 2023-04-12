@@ -34,50 +34,17 @@ class PyAircraftModel : public ugr::risk::AircraftModel
 	{
 		addDescentModel<ugr::risk::ParachuteDescentModel>(parachuteDragCoeff, parachuteArea, parachuteDeployTime);
 	}
-};
 
-//class PyGeospatialGridMap : public ugr::mapping::GeospatialGridMap
-//{
-// public:
-//	PyGeospatialGridMap(const array<float, 4>& bounds, int resolution) :
-//		GeospatialGridMap(bounds, resolution)
-//	{
-//	}
-//
-//	using ugr::mapping::GeospatialGridMap::atPosition;
-//	using ugr::mapping::GeospatialGridMap::at;
-//	using ugr::mapping::GeospatialGridMap::getBounds;
-//	using ugr::mapping::GeospatialGridMap::getResolution;
-//	using ugr::mapping::GeospatialGridMap::getSize;
-//	using ugr::mapping::GeospatialGridMap::local2World;
-//	using ugr::mapping::GeospatialGridMap::world2Local;
-//	using ugr::mapping::GeospatialGridMap::getLayers;
-//	using ugr::mapping::GeospatialGridMap::get;
-//	using ugr::mapping::GeospatialGridMap::isInBounds;
-//	using ugr::mapping::GeospatialGridMap::eval;
-//};
-//
-//class PyPopulationMap : public ugr::mapping::PopulationMap
-//{
-// public:
-//	PyPopulationMap(const array<float, 4>& bounds, int resolution) :
-//		PopulationMap(bounds, resolution)
-//	{
-//	}
-//
-////	using ugr::mapping::PopulationMap::
-//};
-//
-//class PyTemporalPopulationMap : public ugr::mapping::TemporalPopulationMap
-//{
-// public:
-//	PyTemporalPopulationMap(const array<float, 4>& bounds, int resolution, short defaultHour) :
-//		TemporalPopulationMap(bounds, resolution, defaultHour)
-//	{
-//	}
-//
-//	using ugr::mapping::TemporalPopulationMap::setHourOfDay;
-//};
+	std::vector<std::string> getDescentNames()
+	{
+		std::vector<std::string> names;
+		for (auto& d : descents)
+		{
+			names.push_back(d->name);
+		}
+		return names;
+	}
+};
 
 class PyGroundRiskVoxelGrid : public ur::GroundRiskVoxelGrid
 {
@@ -144,5 +111,15 @@ class PyIncrementalGroundRiskVoxelGrid : public ur::IncrementalGroundRiskVoxelGr
 	{
 	}
 
-	using ur::IncrementalGroundRiskVoxelGrid::getPointRisk;
+	double getPointStrikeRisk(const ugr::gridmap::Position3& position, int heading)
+	{
+		auto r = IncrementalGroundRiskVoxelGrid::getPointRisk(position, heading, ugr::risk::RiskType::STRIKE);
+		return r;
+	}
+
+	double getPointFatalityRisk(const ugr::gridmap::Position3& position, int heading)
+	{
+		auto r = IncrementalGroundRiskVoxelGrid::getPointRisk(position, heading, ugr::risk::RiskType::FATALITY);
+		return r;
+	}
 };

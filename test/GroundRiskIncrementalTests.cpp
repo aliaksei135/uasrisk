@@ -1,9 +1,12 @@
 #include <gtest/gtest.h>
-
+#include "uasgroundrisk/risk_analysis/aircraft/AircraftModel.h"
+#include "uasgroundrisk/risk_analysis/weather/WeatherMap.h"
 #include "uasgroundrisk/map_gen/TemporalPopulationMap.h"
-#include "uasrisk/RiskVoxelGrid.h"
+#include "uasgroundrisk/risk_analysis/obstacles/ObstacleMap.h"
+#include "uasrisk/ground/IncrementalGroundRiskVoxelGrid.h"
+#include "../python/GroundRiskHelpers.h"
 
-TEST(RiskVoxelGridTests, EvalTest)
+TEST(GroundRiskIncrementalTests, EvalTest)
 {
 	constexpr int xyRes = 60;
 	constexpr int zRes = 20;
@@ -46,7 +49,22 @@ TEST(RiskVoxelGridTests, EvalTest)
 	obstacleMap.addBuildingHeights();
 	obstacleMap.eval();
 
-	ur::RiskVoxelGrid rvg(xyzBounds, xyRes, zRes, "opensky_states.csv", "openaip_airspace_uk.aip", &population,
-	                      &aircraft, &obstacleMap, &weather);
-	rvg.eval();
+	ur::IncrementalGroundRiskVoxelGrid grvg(xyzBounds, xyRes, zRes, &population, &aircraft, &obstacleMap, &weather);
+	auto pointStrikeRisk = grvg.getPointRisk({ -1.4f, 50.925f, 90 }, 270, ugr::risk::RiskType::STRIKE);
+	auto pointFatalityRisk = grvg.getPointRisk({ -1.4f, 50.925f, 90 }, 270, ugr::risk::RiskType::FATALITY);
+	// print risks
+	std::cout << "Strike risk: " << pointStrikeRisk << std::endl;
+	std::cout << "Fatality risk: " << pointFatalityRisk << std::endl;
+	assert(pointStrikeRisk > 0.0f);
+	assert(pointFatalityRisk > 0.0f);
+
+	PyIncrementalGroundRiskVoxelGrid pygrvg(xyzBounds, xyRes, zRes, &aircraft);
+	auto pyPointStrikeRisk = pygrvg.getPointStrikeRisk({ -1.4f, 50.925f, 90 }, 270);
+	auto pyPointFatalityRisk = pygrvg.getPointFatalityRisk({ -1.4f, 50.925f, 90 }, 270);
+	// print risks
+	std::cout << "Strike risk: " << pyPointStrikeRisk << std::endl;
+	std::cout << "Fatality risk: " << pyPointFatalityRisk << std::endl;
+	assert(pyPointStrikeRisk > 0.0f);
+	assert(pyPointFatalityRisk > 0.0f);
+
 }

@@ -70,7 +70,7 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 	////////////////////////////////////////////////////////////////
 	// auto voxelGridModule = topModule.def_submodule("environment");
 	py::class_<ur::VoxelGrid>(topModule, "VoxelGrid")
-		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const char*>())
+		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar>())
 		.def("add", overload_cast_<const std::string&, const ur::FPScalar>()(&ur::VoxelGrid::add),
 			"Add a layer with a constant value")
 		.def("add", overload_cast_<const std::string&, const ur::Matrix&>()(&ur::VoxelGrid::add),
@@ -85,8 +85,8 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 		.def("atPosition",
 			overload_cast_<const std::string&, const ur::Position&>()(&ur::VoxelGrid::atPosition, py::const_),
 			"Return the value of the layer at the given world coordinates")
-//		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get),
-//		     py::return_value_policy::reference_internal, "Return the entire tensor for a layer")
+		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get),
+			py::return_value_policy::reference_internal, "Return the entire tensor for a layer")
 //		.def("get", overload_cast_<const std::string&>()(&ur::VoxelGrid::get, py::const_),
 //		     "Return the entire tensor for a layer")
 		.def("world2Local", overload_cast_<const ur::Position&>()(&ur::VoxelGrid::world2Local, py::const_),
@@ -114,10 +114,10 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 		.def("at",
 			overload_cast_<const std::string&, const ugr::gridmap::Index&>()(&ugr::gridmap::GridMap::at, py::const_),
 			"Return the value of the layer at a given index")
-//		.def("get", overload_cast_<const std::string&>()(&ugr::gridmap::GridMap::get),
-//		     py::return_value_policy::reference_internal, "Return the entire tensor for a layer")
-//		.def("get", overload_cast_<const std::string&>()(&ugr::gridmap::GridMap::get, py::const_),
-//		     "Return the entire tensor for a layer")
+		.def("get", overload_cast_<const std::string&>()(&ugr::gridmap::GridMap::get),
+			py::return_value_policy::reference_internal, "Return the entire tensor for a layer")
+		.def("get", overload_cast_<const std::string&>()(&ugr::gridmap::GridMap::get, py::const_),
+			"Return the entire tensor for a layer")
 		.def("isInBounds", &ugr::gridmap::GridMap::isInBounds, "Test if the given local indices is within bounds")
 		.def("writeToNetCDF",
 			&ugr::gridmap::GridMap::writeToNetCDF,
@@ -162,19 +162,25 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 		.def_readonly("mass", &PyAircraftModel::mass, "Aircraft Mass")
 		.def_readonly("length", &PyAircraftModel::length, "Aircraft Length")
 		.def_readonly("width", &PyAircraftModel::width, "Aircraft Width")
+		.def_readonly("failureProb", &PyAircraftModel::failureProb, "Aircraft Failure Probability Per Flight Hour")
 		.def_readwrite("state", &PyAircraftModel::state, "Aircraft State")
 		.def("addGlideDescentModel", &PyAircraftModel::addGlideDescentModel, "Add glide descent model")
 		.def("addBallisticDescentModel", &PyAircraftModel::addBallisticDescentModel, "Add ballistic descent model")
-		.def("addParachuteDescentModel", &PyAircraftModel::addParachuteDescentModel, "Add parachute descent model");
+		.def("addParachuteDescentModel", &PyAircraftModel::addParachuteDescentModel, "Add parachute descent model")
+		.def_property_readonly("descentNames",
+			&PyAircraftModel::getDescentNames,
+			"Get the names of the descent models");
 
 	////////////////////////////////////////////////////////////////
 	// UGR Population Mapping
 	////////////////////////////////////////////////////////////////
 	py::class_<ugr::mapping::PopulationMap, ugr::mapping::GeospatialGridMap>(topModule, "PopulationMap")
+		.def(py::init<std::array<float, 4>, float>())
 		.def(py::init<const std::array<float, 4>, int>())
 		.def("eval", &ugr::mapping::PopulationMap::eval, "Evaluate the population map");
 
 	py::class_<ugr::mapping::TemporalPopulationMap, ugr::mapping::PopulationMap>(topModule, "TemporalPopulationMap")
+		.def(py::init<std::array<float, 4>, float>())
 		.def("setHourOfDay", &ugr::mapping::TemporalPopulationMap::setHourOfDay,
 			"Set the Hour of Day for the underlying population model");
 
@@ -183,10 +189,12 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 	////////////////////////////////////////////////////////////////
 
 	py::class_<ugr::risk::ObstacleMap, ugr::mapping::GeospatialGridMap>(topModule, "ObstacleMap")
+		.def(py::init<std::array<float, 4>, float>())
 		.def("addOSMLayer", &ugr::risk::ObstacleMap::addOSMLayer, "Add an OSM layer to the map as an obstacle")
 		.def("addBuildingHeights", &ugr::risk::ObstacleMap::addBuildingHeights, "Add OSM building heights to the map");
 
 	py::class_<ugr::risk::WeatherMap, ugr::mapping::GeospatialGridMap>(topModule, "WeatherMap")
+		.def(py::init<std::array<float, 4>, float>())
 		.def("addConstantWind", &ugr::risk::WeatherMap::addConstantWind, "Add a constant wind to the map");
 
 	////////////////////////////////////////////////////////////////
@@ -199,8 +207,8 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 					  ugr::mapping::PopulationMap*,
 					  PyAircraftModel*,
 					  ugr::risk::ObstacleMap*,
-					  ugr::risk::WeatherMap*>());
-
+					  ugr::risk::WeatherMap*>())
+		.def("eval", &PyGroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
 
 	py::class_<PyGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "GroundRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>())
@@ -212,7 +220,12 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 
 	py::class_<PyIncrementalGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "IncrementalGroundRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>())
-		.def("getPointRisk", &PyIncrementalGroundRiskVoxelGrid::getPointRisk, "Get the risk at a given point");
+		.def("getPointStrikeRisk",
+			&PyIncrementalGroundRiskVoxelGrid::getPointStrikeRisk,
+			"Get the strike risk at a given point")
+		.def("getPointFatalityRisk",
+			&PyIncrementalGroundRiskVoxelGrid::getPointFatalityRisk,
+			"Get the fatality risk at a given point");
 
 	py::class_<PyAirRiskVoxelGrid, ur::VoxelGrid>(topModule, "AirRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const
