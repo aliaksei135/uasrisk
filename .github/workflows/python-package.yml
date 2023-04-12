@@ -37,9 +37,11 @@ jobs:
 
       - uses: pypa/cibuildwheel@v2.12.1
         env:
+          CIBW_BEFORE_ALL: git config --global url."https://aliaksei135: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@github.com/aliaksei135".insteadOf "https://github.com/aliaksei135"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_ARCHS_MACOS: universal2
           CIBW_ARCHS_WINDOWS: auto ARM64
+          CIBW_TEST_COMMAND: pipx run pytest ./test
 
       - name: Verify clean directory
         run: git diff --exit-code
