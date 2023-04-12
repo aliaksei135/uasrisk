@@ -20,6 +20,7 @@ TEST(GroundRiskVoxelGridTests, EvalTest)
 	aircraft.mass = 50;
 	aircraft.length = 5;
 	aircraft.width = 5;
+	aircraft.failureProb = 5e-3;
 	aircraft.state.position << 0, 0, 0;
 	aircraft.state.velocity << 20, 20, 1;
 
@@ -42,5 +43,8 @@ TEST(GroundRiskVoxelGridTests, EvalTest)
 	ur::GroundRiskVoxelGrid grvg(xyzBounds, xyRes, zRes, &population, &aircraft, &obstacleMap, &weather);
 	grvg.eval();
 
+	assert(grvg.get("Population Density").mean() > 0);
+	assert(grvg.get("Ground Strike Risk").mean() > 0);
+	assert(grvg.get("Ground Fatality Risk").mean() > 0);
 
 }

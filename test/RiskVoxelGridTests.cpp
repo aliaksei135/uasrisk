@@ -22,6 +22,7 @@ TEST(RiskVoxelGridTests, EvalTest)
 	aircraft.mass = 50;
 	aircraft.length = 5;
 	aircraft.width = 5;
+	aircraft.failureProb = 5e-3;
 	aircraft.state.position << 0, 0, 0;
 	aircraft.state.velocity << 20, 20, 1;
 
