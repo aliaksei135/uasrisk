@@ -34,6 +34,16 @@ class PyAircraftModel : public ugr::risk::AircraftModel
 	{
 		addDescentModel<ugr::risk::ParachuteDescentModel>(parachuteDragCoeff, parachuteArea, parachuteDeployTime);
 	}
+
+	std::vector<std::string> getDescentNames()
+	{
+		std::vector<std::string> names;
+		for (auto& d : descents)
+		{
+			names.push_back(d->name);
+		}
+		return names;
+	}
 };
 
 //class PyGeospatialGridMap : public ugr::mapping::GeospatialGridMap
