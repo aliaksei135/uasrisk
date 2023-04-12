@@ -111,5 +111,15 @@ class PyIncrementalGroundRiskVoxelGrid : public ur::IncrementalGroundRiskVoxelGr
 	{
 	}
 
-	using ur::IncrementalGroundRiskVoxelGrid::getPointRisk;
+	double getPointStrikeRisk(const ugr::gridmap::Position3& position, int heading)
+	{
+		auto r = IncrementalGroundRiskVoxelGrid::getPointRisk(position, heading, ugr::risk::RiskType::STRIKE);
+		return r;
+	}
+
+	double getPointFatalityRisk(const ugr::gridmap::Position3& position, int heading)
+	{
+		auto r = IncrementalGroundRiskVoxelGrid::getPointRisk(position, heading, ugr::risk::RiskType::FATALITY);
+		return r;
+	}
 };
