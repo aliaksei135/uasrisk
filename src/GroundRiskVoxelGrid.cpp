@@ -19,9 +19,8 @@ void ur::GroundRiskVoxelGrid::eval()
 	add("Ground Fatality Risk", 0);
 	add("Ground Fatality Risk", 0);
 
-
-	auto groundStrikeRiskTensor = get("Ground Strike Risk");
-	auto groundFatalityRiskTensor = get("Ground Fatality Risk");
+	auto& groundStrikeRiskTensor = get("Ground Strike Risk");
+	auto& groundFatalityRiskTensor = get("Ground Fatality Risk");
 
 	for (int z = 0; z < sizeZ; ++z)
 	{
@@ -37,8 +36,7 @@ void ur::GroundRiskVoxelGrid::eval()
 		// Create a riskmap object 
 		ugr::risk::RiskMap altRiskMap(*populationMap, *aircraftModel, *obstacleMap, *weatherMap);
 
-		//TODO Allow propogation of heading
-		// Set any heading for now
+		//Specific headings are handled using IncrementalRiskMap now
 		altRiskMap.SetAnyHeading(true);
 
 		// Evaluate the ground risk map for this altitude
