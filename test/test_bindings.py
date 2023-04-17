@@ -204,7 +204,9 @@ def test_ground_risk_voxel_grid():
     ground_risk_voxel_grid = GroundRiskVoxelGrid(xyz_bounds, xy_res, z_res, am)
     assert ground_risk_voxel_grid is not None
     ground_risk_voxel_grid.eval()
-    assert ground_risk_voxel_grid.at("Ground Risk", np.array([10, 10, 1])) > 0
+
+    index_centre = ground_risk_voxel_grid.world2Local(bounds_centre)
+    assert ground_risk_voxel_grid.at("Ground Risk", index_centre) > 0
     assert ground_risk_voxel_grid.atPosition("Ground Risk", bounds_centre) > 0
     # assert ground_risk_voxel_grid.at("Ground Fatality Risk", np.array([10, 10, 1])) > 0
     # assert ground_risk_voxel_grid.get("Ground Strike Risk").mean() > 0
@@ -222,7 +224,7 @@ def test_incremental_ground_risk_voxel_grid():
 
     incremental_ground_risk_voxel_grid = IncrementalGroundRiskVoxelGrid(xyz_bounds, xy_res, z_res, am)
     assert incremental_ground_risk_voxel_grid is not None
-    index_centre = np.array([10, 10])
+    index_centre = incremental_ground_risk_voxel_grid.world2Local(bounds_centre)
 
     positionStrikeRisk = incremental_ground_risk_voxel_grid.getPositionPointStrikeProbability(bounds_centre, 270)
     positionFatalityRisk = incremental_ground_risk_voxel_grid.getPositionPointFatalityProbability(bounds_centre, 270)
@@ -230,8 +232,10 @@ def test_incremental_ground_risk_voxel_grid():
     assert positionFatalityRisk > 0
     assert positionStrikeRisk > positionFatalityRisk
 
-    indexStrikeRisk = incremental_ground_risk_voxel_grid.getIndexPointStrikeProbability(index_centre, 50, 270)
-    indexFatalityRisk = incremental_ground_risk_voxel_grid.getIndexPointFatalityProbability(index_centre, 50, 270)
+    indexStrikeRisk = incremental_ground_risk_voxel_grid.getIndexPointStrikeProbability(index_centre[:2],
+                                                                                        index_centre[2], 270)
+    indexFatalityRisk = incremental_ground_risk_voxel_grid.getIndexPointFatalityProbability(index_centre[:2],
+                                                                                            index_centre[2], 270)
     assert indexStrikeRisk > 0
     assert indexFatalityRisk > 0
     assert indexStrikeRisk > indexFatalityRisk

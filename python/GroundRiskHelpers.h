@@ -111,6 +111,11 @@ class PyIncrementalGroundRiskVoxelGrid : public ur::IncrementalGroundRiskVoxelGr
 	{
 	}
 
+	using ur::VoxelGrid::world2Local;
+	using ur::VoxelGrid::local2World;
+	using ur::VoxelGrid::getSize;
+	using ur::VoxelGrid::isInBounds;
+
 	double getIndexPointStrikeProbability(const ugr::gridmap::Index& index,
 		const double altitude,
 		const int heading)
