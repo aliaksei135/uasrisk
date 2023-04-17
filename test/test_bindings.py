@@ -222,11 +222,19 @@ def test_incremental_ground_risk_voxel_grid():
 
     incremental_ground_risk_voxel_grid = IncrementalGroundRiskVoxelGrid(xyz_bounds, xy_res, z_res, am)
     assert incremental_ground_risk_voxel_grid is not None
-    strikeRisk = incremental_ground_risk_voxel_grid.getPointStrikeRisk(bounds_centre, 270)
-    fatalityRisk = incremental_ground_risk_voxel_grid.getPointFatalityRisk(bounds_centre, 270)
-    assert strikeRisk > 0
-    assert fatalityRisk > 0
-    assert strikeRisk > fatalityRisk
+    index_centre = np.array([10, 10])
+
+    positionStrikeRisk = incremental_ground_risk_voxel_grid.getPositionPointStrikeProbability(bounds_centre, 270)
+    positionFatalityRisk = incremental_ground_risk_voxel_grid.getPositionPointFatalityProbability(bounds_centre, 270)
+    assert positionStrikeRisk > 0
+    assert positionFatalityRisk > 0
+    assert positionStrikeRisk > positionFatalityRisk
+
+    indexStrikeRisk = incremental_ground_risk_voxel_grid.getIndexPointStrikeProbability(index_centre, 50, 270)
+    indexFatalityRisk = incremental_ground_risk_voxel_grid.getIndexPointFatalityProbability(index_centre, 50, 270)
+    assert indexStrikeRisk > 0
+    assert indexFatalityRisk > 0
+    assert indexStrikeRisk > indexFatalityRisk
 
 # def test_air_risk_voxel_grid():
 #     air_risk_voxel_grid = AirRiskVoxelGrid()

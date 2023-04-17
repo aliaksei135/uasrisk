@@ -7,7 +7,7 @@
 
 namespace ur
 {
-	class IncrementalGroundRiskVoxelGrid : public VoxelGrid
+	class IncrementalGroundRiskVoxelGrid : public VoxelGrid, ugr::risk::IncrementalRiskMap
 	{
 	 public:
 
@@ -26,10 +26,13 @@ namespace ur
 //			delete weatherMap;
 		}
 
-		double getPointRisk(const ugr::gridmap::Position3& pos, int heading, ugr::risk::RiskType riskType);
+		using ugr::risk::IncrementalRiskMap::getIndexPointStrikeProbability;
+		using ugr::risk::IncrementalRiskMap::getIndexPointFatalityProbability;
+		using ugr::risk::IncrementalRiskMap::getPositionPointStrikeProbability;
+		using ugr::risk::IncrementalRiskMap::getPositionPointFatalityProbability;
 
-	 protected:
-		ugr::risk::IncrementalRiskMap incrementalRiskMap;
+//	 protected:
+//		ugr::risk::IncrementalRiskMap incrementalRiskMap;
 
 	};
 }

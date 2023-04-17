@@ -111,15 +111,31 @@ class PyIncrementalGroundRiskVoxelGrid : public ur::IncrementalGroundRiskVoxelGr
 	{
 	}
 
-	double getPointStrikeRisk(const ugr::gridmap::Position3& position, int heading)
+	double getIndexPointStrikeProbability(const ugr::gridmap::Index& index,
+		const double altitude,
+		const int heading)
 	{
-		auto r = IncrementalGroundRiskVoxelGrid::getPointRisk(position, heading, ugr::risk::RiskType::STRIKE);
-		return r;
+		return IncrementalGroundRiskVoxelGrid::getIndexPointStrikeProbability(index, altitude, heading);
 	}
 
-	double getPointFatalityRisk(const ugr::gridmap::Position3& position, int heading)
+// Pybind needs a bunch of lambda functions as it does not support reflection, so would need even deeper bindings into ugr
+
+	double getIndexPointFatalityProbability(const ugr::gridmap::Index& index,
+		const double altitude,
+		const int heading)
 	{
-		auto r = IncrementalGroundRiskVoxelGrid::getPointRisk(position, heading, ugr::risk::RiskType::FATALITY);
-		return r;
+		return IncrementalGroundRiskVoxelGrid::getIndexPointFatalityProbability(index, altitude, heading);
+	}
+
+	double getPositionPointStrikeProbability(const ugr::gridmap::Position3& position,
+		const int heading)
+	{
+		return IncrementalGroundRiskVoxelGrid::getPositionPointStrikeProbability(position, heading);
+	}
+
+	double getPositionPointFatalityProbability(const ugr::gridmap::Position3& position,
+		const int heading)
+	{
+		return IncrementalGroundRiskVoxelGrid::getPositionPointFatalityProbability(position, heading);
 	}
 };
