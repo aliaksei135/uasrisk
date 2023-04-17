@@ -220,12 +220,18 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 
 	py::class_<PyIncrementalGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "IncrementalGroundRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>())
-		.def("getPointStrikeRisk",
-			&PyIncrementalGroundRiskVoxelGrid::getPointStrikeRisk,
-			"Get the strike risk at a given point")
-		.def("getPointFatalityRisk",
-			&PyIncrementalGroundRiskVoxelGrid::getPointFatalityRisk,
-			"Get the fatality risk at a given point");
+		.def("getIndexPointStrikeProbability",
+			&PyIncrementalGroundRiskVoxelGrid::getIndexPointStrikeProbability,
+			"Get the strike risk at a given index")
+		.def("getIndexPointFatalityProbability",
+			&PyIncrementalGroundRiskVoxelGrid::getIndexPointFatalityProbability,
+			"Get the fatality risk at a given index")
+		.def("getPositionPointStrikeProbability",
+			&PyIncrementalGroundRiskVoxelGrid::getPositionPointStrikeProbability,
+			"Get the strike risk at a given position")
+		.def("getPositionPointFatalityProbability",
+			&PyIncrementalGroundRiskVoxelGrid::getPositionPointFatalityProbability,
+			"Get the fatality risk at a given position");
 
 	py::class_<PyAirRiskVoxelGrid, ur::VoxelGrid>(topModule, "AirRiskVoxelGrid")
 		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, const std::string&, const
