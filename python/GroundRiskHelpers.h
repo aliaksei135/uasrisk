@@ -7,6 +7,8 @@
 #include "uasrisk/ground/GroundRiskVoxelGrid.h"
 #include "uasrisk/ground/IncrementalGroundRiskVoxelGrid.h"
 
+#include <memory>
+
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include "spdlog/sinks/stdout_color_sinks.h"
@@ -104,10 +106,16 @@ class PyIncrementalGroundRiskVoxelGrid : public ur::IncrementalGroundRiskVoxelGr
 	PyIncrementalGroundRiskVoxelGrid(const std::array<ur::FPScalar, 6>& bounds, ur::FPScalar xyRes,
 		ur::FPScalar zRes, ugr::risk::AircraftModel* aircraftModel) : IncrementalGroundRiskVoxelGrid(
 		bounds, xyRes, zRes,
-		new ugr::mapping::TemporalPopulationMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
+		std::shared_ptr<ugr::mapping::TemporalPopulationMap>(new ugr::mapping::TemporalPopulationMap({ bounds[0],
+																									   bounds[1],
+																									   bounds[3],
+																									   bounds[4] },
+			xyRes)).get(),
 		aircraftModel,
-		new ugr::risk::ObstacleMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes),
-		new ugr::risk::WeatherMap({ bounds[0], bounds[1], bounds[3], bounds[4] }, xyRes))
+		std::shared_ptr<ugr::risk::ObstacleMap>(new ugr::risk::ObstacleMap({ bounds[0], bounds[1], bounds[3],
+																			 bounds[4] }, xyRes)).get(),
+		std::shared_ptr<ugr::risk::WeatherMap>(new ugr::risk::WeatherMap({ bounds[0], bounds[1], bounds[3], bounds[4] },
+			xyRes)).get())
 	{
 	}
 
@@ -115,32 +123,8 @@ class PyIncrementalGroundRiskVoxelGrid : public ur::IncrementalGroundRiskVoxelGr
 	using ur::VoxelGrid::local2World;
 	using ur::VoxelGrid::getSize;
 	using ur::VoxelGrid::isInBounds;
-
-	double getIndexPointStrikeProbability(const ugr::gridmap::Index& index,
-		const double altitude,
-		const int heading)
-	{
-		return IncrementalGroundRiskVoxelGrid::getIndexPointStrikeProbability(index, altitude, heading);
-	}
-
-// Pybind needs a bunch of lambda functions as it does not support reflection, so would need even deeper bindings into ugr
-
-	double getIndexPointFatalityProbability(const ugr::gridmap::Index& index,
-		const double altitude,
-		const int heading)
-	{
-		return IncrementalGroundRiskVoxelGrid::getIndexPointFatalityProbability(index, altitude, heading);
-	}
-
-	double getPositionPointStrikeProbability(const ugr::gridmap::Position3& position,
-		const int heading)
-	{
-		return IncrementalGroundRiskVoxelGrid::getPositionPointStrikeProbability(position, heading);
-	}
-
-	double getPositionPointFatalityProbability(const ugr::gridmap::Position3& position,
-		const int heading)
-	{
-		return IncrementalGroundRiskVoxelGrid::getPositionPointFatalityProbability(position, heading);
-	}
+	using ur::IncrementalGroundRiskVoxelGrid::getIndexPointStrikeProbability;
+	using ur::IncrementalGroundRiskVoxelGrid::getIndexPointFatalityProbability;
+	using ur::IncrementalGroundRiskVoxelGrid::getPositionPointStrikeProbability;
+	using ur::IncrementalGroundRiskVoxelGrid::getPositionPointFatalityProbability;
 };

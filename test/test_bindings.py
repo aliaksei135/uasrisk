@@ -240,6 +240,45 @@ def test_incremental_ground_risk_voxel_grid():
     assert indexFatalityRisk > 0
     assert indexStrikeRisk > indexFatalityRisk
 
+
+class TestIGRVGClass:
+    """Test the IncrementalGroundRiskVoxelGrid object lifetime"""
+
+    def __init__(self, xyz_bounds, resolutions):
+        self.igrvg = self.makeIGRVG(xyz_bounds, resolutions)
+
+    def makeIGRVG(self, xyz_bounds, resolutions):
+        asm = AircraftStateModel()
+        asm.position = np.array([0, 0, 40])
+        asm.velocity = np.array([20, 0, 0])
+        am = AircraftModel(25, 6, 5, 5e-3)
+        am.state = asm
+        am.addGlideDescentModel(22, 15)
+        am.addBallisticDescentModel(5, 0.8)
+        return IncrementalGroundRiskVoxelGrid(xyz_bounds, resolutions[0], resolutions[1], am)
+
+
+def test_incremental_ground_risk_voxel_grid_lifetimes():
+    test_class = TestIGRVGClass(xyz_bounds, (xy_res, xy_res, z_res))
+    assert test_class.igrvg is not None
+
+    assert test_class.igrvg is not None
+    index_centre = test_class.igrvg.world2Local(bounds_centre)
+
+    positionStrikeRisk = test_class.igrvg.getPositionPointStrikeProbability(bounds_centre, 270)
+    positionFatalityRisk = test_class.igrvg.getPositionPointFatalityProbability(bounds_centre, 270)
+    assert positionStrikeRisk > 0
+    assert positionFatalityRisk > 0
+    assert positionStrikeRisk > positionFatalityRisk
+
+    indexStrikeRisk = test_class.igrvg.getIndexPointStrikeProbability(index_centre[:2],
+                                                                      index_centre[2], 270)
+    indexFatalityRisk = test_class.igrvg.getIndexPointFatalityProbability(index_centre[:2],
+                                                                          index_centre[2], 270)
+    assert indexStrikeRisk > 0
+    assert indexFatalityRisk > 0
+    assert indexStrikeRisk > indexFatalityRisk
+
 # def test_air_risk_voxel_grid():
 #     air_risk_voxel_grid = AirRiskVoxelGrid()
 #     assert air_risk_voxel_grid is not None

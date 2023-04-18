@@ -7,7 +7,7 @@
 
 namespace ur
 {
-	class IncrementalGroundRiskVoxelGrid : public VoxelGrid, ugr::risk::IncrementalRiskMap
+	class IncrementalGroundRiskVoxelGrid : public VoxelGrid
 	{
 	 public:
 
@@ -16,7 +16,10 @@ namespace ur
 			ugr::mapping::PopulationMap* populationMap,
 			ugr::risk::AircraftModel* aircraftModel,
 			ugr::risk::ObstacleMap* obstacleMap,
-			ugr::risk::WeatherMap* weather);
+			ugr::risk::WeatherMap* weather) : VoxelGrid(bounds, xyRes, zRes),
+											  incrementalRiskMap(*populationMap, *aircraftModel, *obstacleMap, *weather)
+		{
+		}
 
 		~IncrementalGroundRiskVoxelGrid()
 		{
@@ -26,13 +29,37 @@ namespace ur
 //			delete weatherMap;
 		}
 
-		using ugr::risk::IncrementalRiskMap::getIndexPointStrikeProbability;
-		using ugr::risk::IncrementalRiskMap::getIndexPointFatalityProbability;
-		using ugr::risk::IncrementalRiskMap::getPositionPointStrikeProbability;
-		using ugr::risk::IncrementalRiskMap::getPositionPointFatalityProbability;
+		// Pybind needs a bunch of lambda functions as it does not support reflection, so would need even deeper bindings into ugr
+		// No beauty contests here
 
-//	 protected:
-//		ugr::risk::IncrementalRiskMap incrementalRiskMap;
+		double getIndexPointStrikeProbability(const ugr::gridmap::Index& index,
+			const double altitude,
+			const int heading)
+		{
+			return incrementalRiskMap.getIndexPointStrikeProbability(index, altitude, heading);
+		}
+
+		double getIndexPointFatalityProbability(const ugr::gridmap::Index& index,
+			const double altitude,
+			const int heading)
+		{
+			return incrementalRiskMap.getIndexPointFatalityProbability(index, altitude, heading);
+		}
+
+		double getPositionPointStrikeProbability(const ugr::gridmap::Position3& position,
+			const int heading)
+		{
+			return incrementalRiskMap.getPositionPointStrikeProbability(position, heading);
+		}
+
+		double getPositionPointFatalityProbability(const ugr::gridmap::Position3& position,
+			const int heading)
+		{
+			return incrementalRiskMap.getPositionPointFatalityProbability(position, heading);
+		}
+
+	 protected:
+		ugr::risk::IncrementalRiskMap incrementalRiskMap;
 
 	};
 }

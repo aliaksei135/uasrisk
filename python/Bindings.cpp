@@ -218,10 +218,9 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 			"Extract a slice of the risk tensor at the given z Index.")
 		.def("eval", &PyGroundRiskVoxelGrid::eval, "Evaluate the ground risk values of the voxel grid.");
 
-	py::class_<PyIncrementalGroundRiskVoxelGrid, ur::VoxelGrid>(topModule,
-		"IncrementalGroundRiskVoxelGrid",
-		py::multiple_inheritance())
-		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>())
+	py::class_<PyIncrementalGroundRiskVoxelGrid, ur::VoxelGrid>(topModule, "IncrementalGroundRiskVoxelGrid")
+		.def(py::init<const std::array<ur::FPScalar, 6>, ur::FPScalar, ur::FPScalar, PyAircraftModel*>(),
+			py::keep_alive<1, 2>())
 		.def("getIndexPointStrikeProbability",
 			&PyIncrementalGroundRiskVoxelGrid::getIndexPointStrikeProbability,
 			"Get the strike risk at a given index")

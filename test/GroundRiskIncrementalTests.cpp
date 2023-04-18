@@ -50,8 +50,8 @@ TEST(GroundRiskIncrementalTests, EvalTest)
 	obstacleMap.eval();
 
 	ur::IncrementalGroundRiskVoxelGrid grvg(xyzBounds, xyRes, zRes, &population, &aircraft, &obstacleMap, &weather);
-	auto pointStrikeRisk = grvg.getPointRisk({ -1.4f, 50.925f, 90 }, 270, ugr::risk::RiskType::STRIKE);
-	auto pointFatalityRisk = grvg.getPointRisk({ -1.4f, 50.925f, 90 }, 270, ugr::risk::RiskType::FATALITY);
+	auto pointStrikeRisk = grvg.getPositionPointStrikeProbability({ -1.4f, 50.925f, 90 }, 270);
+	auto pointFatalityRisk = grvg.getPositionPointFatalityProbability({ -1.4f, 50.925f, 90 }, 270);
 	// print risks
 	std::cout << "Strike risk: " << pointStrikeRisk << std::endl;
 	std::cout << "Fatality risk: " << pointFatalityRisk << std::endl;
@@ -59,8 +59,8 @@ TEST(GroundRiskIncrementalTests, EvalTest)
 	assert(pointFatalityRisk > 0.0f);
 
 	PyIncrementalGroundRiskVoxelGrid pygrvg(xyzBounds, xyRes, zRes, &aircraft);
-	auto pyPointStrikeRisk = pygrvg.getPointStrikeRisk({ -1.4f, 50.925f, 90 }, 270);
-	auto pyPointFatalityRisk = pygrvg.getPointFatalityRisk({ -1.4f, 50.925f, 90 }, 270);
+	auto pyPointStrikeRisk = pygrvg.getPositionPointStrikeProbability({ -1.4f, 50.925f, 90 }, 270);
+	auto pyPointFatalityRisk = pygrvg.getPositionPointFatalityProbability({ -1.4f, 50.925f, 90 }, 270);
 	// print risks
 	std::cout << "Strike risk: " << pyPointStrikeRisk << std::endl;
 	std::cout << "Fatality risk: " << pyPointFatalityRisk << std::endl;

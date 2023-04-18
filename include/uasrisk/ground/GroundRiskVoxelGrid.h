@@ -31,7 +31,7 @@ namespace ur
 		ugr::mapping::PopulationMap* populationMap;
 		ugr::risk::AircraftModel* aircraftModel;
 		ugr::risk::ObstacleMap* obstacleMap;
-		const ugr::risk::WeatherMap* weatherMap;
+		ugr::risk::WeatherMap* weatherMap;
 	};
 }
 #endif // UR_GROUNDRISKVOXELGRID_H
