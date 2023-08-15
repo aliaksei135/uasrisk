@@ -9,8 +9,8 @@ if os.path.exists(current_dir / 'lib'):
 elif os.path.exists(current_dir / 'lib64'):
     lib_dir = current_dir / 'lib64'
 
-for lib in lib_dir.glob('*'):
-    cdll.LoadLibrary(lib)
+cdll.LoadLibrary(lib_dir / 'libuasgroundrisk.so')
+cdll.LoadLibrary(lib_dir / 'libuasrisk.so')
 
 from ._pyuasrisk import __version__, __doc__, VoxelGrid, GridMap, GeospatialGridMap, AircraftStateModel, AircraftModel, \
     PopulationMap, TemporalPopulationMap, ObstacleMap, WeatherMap, FullGroundRiskVoxelGrid, GroundRiskVoxelGrid, \
