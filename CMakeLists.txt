@@ -200,8 +200,8 @@ endif()
 
 find_package(Threads REQUIRED)
 
-find_package(netCDF CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE netCDF::netcdf)
+#find_package(netCDF CONFIG REQUIRED)
+#target_link_libraries(${PROJECT_NAME} PRIVATE netCDF::netcdf)
 
 find_package(Boost REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC Boost::Boost)
@@ -266,10 +266,10 @@ install(TARGETS ${PROJECT_NAME}
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
-IF(UR_BUILD_CLI)
-    message(STATUS "Building CLI...")
-    add_subdirectory(cli)
-endif()
+#IF(UR_BUILD_CLI)
+#    message(STATUS "Building CLI...")
+#    add_subdirectory(cli)
+#endif()
 
 
 #############################################################

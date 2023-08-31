@@ -28,5 +28,5 @@ TEST(EmptyGridTest1, EmptyGridTests)
 	}
 
 
-	vg.writeToNetCDF("empty_test.nc");
+//	vg.writeToNetCDF("empty_test.nc");
 }

@@ -28,5 +28,5 @@ TEST(FullIngestTests, IngestTest)
 	vgb.handleTrajectory(trajs);
 	vgb.handleBlockingPolygon(airspaces);
 
-	vg->writeToNetCDF("test.nc");
+//	vg->writeToNetCDF("test.nc");
 }

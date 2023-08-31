@@ -1,6 +1,6 @@
 [requires]
 eigen/[>3.3.9]
-netcdf/4.7.4
+#netcdf/4.7.4
 proj/9.1.1
 boost/1.81.0
 rapidjson/cci.20220822

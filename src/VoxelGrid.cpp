@@ -6,7 +6,7 @@
 #include <omp.h>
 #include <cassert>
 
-#include <netcdf.h>
+//#include <netcdf.h>
 #include <stdexcept>
 #include <iostream>
 
@@ -178,86 +178,86 @@ ur::Position ur::VoxelGrid::local2World(const Index& localCoord) const
 	return local2World(localCoord[0], localCoord[1], localCoord[2]);
 }
 
-void ur::VoxelGrid::writeToNetCDF(const std::string& path) const
-{
-	std::vector<float> lats(sizeX);
-	std::vector<float> lons(sizeY);
-	std::vector<float> alts(sizeZ);
-
-	const Matrix& airRiskMat = get("Air Risk");
-	const Matrix& groundRiskMat = get("Ground Risk");
-	const Matrix& blockedMat = get("Blocked");
-
-	const auto fullSize = sizeX * sizeY * sizeZ;
-	std::vector<float> airRisks(fullSize);
-	std::vector<float> groundRisks(fullSize);
-	std::vector<short> blockeds(fullSize);
-
-	for (int i = 0; i < sizeY; ++i)
-		lons[i] = local2World(i, 0, 0)[0];
-
-	for (int i = 0; i < sizeX; ++i)
-		lats[i] = local2World(0, i, 0)[1];
-
-	for (int i = 0; i < sizeZ; ++i)
-		alts[i] = local2World(0, 0, i)[2];
-
-	int c = 0;
-	for (int j = 0; j < sizeY; ++j)
-	{
-		for (int i = 0; i < sizeX; ++i)
-		{
-			for (int k = 0; k < sizeZ; ++k)
-			{
-				airRisks[c] = static_cast<float>(airRiskMat(i, j, k));
-				groundRisks[c] = static_cast<float>(groundRiskMat(i, j, k));
-				blockeds[c] = static_cast<short>(blockedMat(i, j, k));
-				++c;
-			}
-		}
-	}
-
-	int ncID, latDimID, lonDimID, altDimID, airRiskDimID, groundRiskDimID, blockedDimID, latVarID, lonVarID,
-		altVarID, airRiskVarID, groundRiskVarID, blockedVarID;
-	nc_create(path.c_str(), NC_CLOBBER | NC_NETCDF4, &ncID);
-	nc_def_dim(ncID, "Latitude", sizeX, &latDimID);
-	nc_def_dim(ncID, "Longitude", sizeY, &lonDimID);
-	nc_def_dim(ncID, "Altitude", sizeZ, &altDimID);
-	nc_def_dim(ncID, "Air Risk", sizeX * sizeY * sizeZ, &airRiskDimID);
-	nc_def_dim(ncID, "Ground Risk", sizeX * sizeY * sizeZ, &groundRiskDimID);
-	nc_def_dim(ncID, "Blocked", sizeX * sizeY * sizeZ, &blockedDimID);
-
-	const int dimArr[3] = { lonDimID, latDimID, altDimID };
-
-	const char* degEStr[1] = { "degrees_east" };
-	const char* degNStr[1] = { "degrees_north" };
-	const char* metreStr[1] = { "metres" };
-	const char* xStr[1] = { "X" };
-	const char* yStr[1] = { "Y" };
-	const char* zStr[1] = { "Z" };
-	nc_def_var(ncID, "Latitude", NC_FLOAT, 1, &latDimID, &latVarID);
-	nc_put_att_string(ncID, latVarID, "units", 1, degNStr);
-	nc_put_att_string(ncID, latVarID, "axis", 1, yStr);
-
-	nc_def_var(ncID, "Longitude", NC_FLOAT, 1, &lonDimID, &lonVarID);
-	nc_put_att_string(ncID, lonVarID, "units", 1, degEStr);
-	nc_put_att_string(ncID, lonVarID, "axis", 1, xStr);
-
-	nc_def_var(ncID, "Altitude", NC_FLOAT, 1, &altDimID, &altVarID);
-	nc_put_att_string(ncID, altVarID, "units", 1, metreStr);
-	nc_put_att_string(ncID, altVarID, "axis", 1, zStr);
-
-	nc_def_var(ncID, "Air Risk", NC_FLOAT, 3, dimArr, &airRiskVarID);
-	nc_def_var(ncID, "Ground Risk", NC_FLOAT, 3, dimArr, &groundRiskVarID);
-	nc_def_var(ncID, "Blocked", NC_SHORT, 3, dimArr, &blockedVarID);
-
-	nc_put_var_float(ncID, latVarID, lats.data());
-	nc_put_var_float(ncID, lonVarID, lons.data());
-	nc_put_var_float(ncID, altVarID, alts.data());
-
-	nc_put_var_float(ncID, groundRiskVarID, groundRisks.data());
-	nc_put_var_float(ncID, airRiskVarID, airRisks.data());
-	nc_put_var_short(ncID, blockedVarID, blockeds.data());
-
-	nc_close(ncID);
-}
+//void ur::VoxelGrid::writeToNetCDF(const std::string& path) const
+//{
+//	std::vector<float> lats(sizeX);
+//	std::vector<float> lons(sizeY);
+//	std::vector<float> alts(sizeZ);
+//
+//	const Matrix& airRiskMat = get("Air Risk");
+//	const Matrix& groundRiskMat = get("Ground Risk");
+//	const Matrix& blockedMat = get("Blocked");
+//
+//	const auto fullSize = sizeX * sizeY * sizeZ;
+//	std::vector<float> airRisks(fullSize);
+//	std::vector<float> groundRisks(fullSize);
+//	std::vector<short> blockeds(fullSize);
+//
+//	for (int i = 0; i < sizeY; ++i)
+//		lons[i] = local2World(i, 0, 0)[0];
+//
+//	for (int i = 0; i < sizeX; ++i)
+//		lats[i] = local2World(0, i, 0)[1];
+//
+//	for (int i = 0; i < sizeZ; ++i)
+//		alts[i] = local2World(0, 0, i)[2];
+//
+//	int c = 0;
+//	for (int j = 0; j < sizeY; ++j)
+//	{
+//		for (int i = 0; i < sizeX; ++i)
+//		{
+//			for (int k = 0; k < sizeZ; ++k)
+//			{
+//				airRisks[c] = static_cast<float>(airRiskMat(i, j, k));
+//				groundRisks[c] = static_cast<float>(groundRiskMat(i, j, k));
+//				blockeds[c] = static_cast<short>(blockedMat(i, j, k));
+//				++c;
+//			}
+//		}
+//	}
+//
+//	int ncID, latDimID, lonDimID, altDimID, airRiskDimID, groundRiskDimID, blockedDimID, latVarID, lonVarID,
+//		altVarID, airRiskVarID, groundRiskVarID, blockedVarID;
+//	nc_create(path.c_str(), NC_CLOBBER | NC_NETCDF4, &ncID);
+//	nc_def_dim(ncID, "Latitude", sizeX, &latDimID);
+//	nc_def_dim(ncID, "Longitude", sizeY, &lonDimID);
+//	nc_def_dim(ncID, "Altitude", sizeZ, &altDimID);
+//	nc_def_dim(ncID, "Air Risk", sizeX * sizeY * sizeZ, &airRiskDimID);
+//	nc_def_dim(ncID, "Ground Risk", sizeX * sizeY * sizeZ, &groundRiskDimID);
+//	nc_def_dim(ncID, "Blocked", sizeX * sizeY * sizeZ, &blockedDimID);
+//
+//	const int dimArr[3] = { lonDimID, latDimID, altDimID };
+//
+//	const char* degEStr[1] = { "degrees_east" };
+//	const char* degNStr[1] = { "degrees_north" };
+//	const char* metreStr[1] = { "metres" };
+//	const char* xStr[1] = { "X" };
+//	const char* yStr[1] = { "Y" };
+//	const char* zStr[1] = { "Z" };
+//	nc_def_var(ncID, "Latitude", NC_FLOAT, 1, &latDimID, &latVarID);
+//	nc_put_att_string(ncID, latVarID, "units", 1, degNStr);
+//	nc_put_att_string(ncID, latVarID, "axis", 1, yStr);
+//
+//	nc_def_var(ncID, "Longitude", NC_FLOAT, 1, &lonDimID, &lonVarID);
+//	nc_put_att_string(ncID, lonVarID, "units", 1, degEStr);
+//	nc_put_att_string(ncID, lonVarID, "axis", 1, xStr);
+//
+//	nc_def_var(ncID, "Altitude", NC_FLOAT, 1, &altDimID, &altVarID);
+//	nc_put_att_string(ncID, altVarID, "units", 1, metreStr);
+//	nc_put_att_string(ncID, altVarID, "axis", 1, zStr);
+//
+//	nc_def_var(ncID, "Air Risk", NC_FLOAT, 3, dimArr, &airRiskVarID);
+//	nc_def_var(ncID, "Ground Risk", NC_FLOAT, 3, dimArr, &groundRiskVarID);
+//	nc_def_var(ncID, "Blocked", NC_SHORT, 3, dimArr, &blockedVarID);
+//
+//	nc_put_var_float(ncID, latVarID, lats.data());
+//	nc_put_var_float(ncID, lonVarID, lons.data());
+//	nc_put_var_float(ncID, altVarID, alts.data());
+//
+//	nc_put_var_float(ncID, groundRiskVarID, groundRisks.data());
+//	nc_put_var_float(ncID, airRiskVarID, airRisks.data());
+//	nc_put_var_short(ncID, blockedVarID, blockeds.data());
+//
+//	nc_close(ncID);
+//}

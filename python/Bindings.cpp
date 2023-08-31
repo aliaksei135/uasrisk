@@ -95,7 +95,7 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 			overload_cast_<ur::FPScalar, ur::FPScalar, ur::FPScalar>()(&ur::VoxelGrid::world2Local, py::const_),
 			"Reproject world (EPSG:4326) coordinates to local indices")
 		.def("isInBounds", &ur::VoxelGrid::isInBounds, "Test if the given local indices is within bounds")
-		.def("writeToNetCDF", &ur::VoxelGrid::writeToNetCDF, "Write the risk layers to netCDF format for export.")
+//		.def("writeToNetCDF", &ur::VoxelGrid::writeToNetCDF, "Write the risk layers to netCDF format for export.")
 		.def_property_readonly("size", &ur::VoxelGrid::getSize, "Return the lengths of the grid")
 		.def_property_readonly("layers", &ur::VoxelGrid::getLayers, "Return the layers in the map")
 		.def("local2World", overload_cast_<const ur::Index&>()(&ur::VoxelGrid::local2World, py::const_),
@@ -119,9 +119,9 @@ PYBIND11_MODULE(_pyuasrisk, topModule)
 		.def("get", overload_cast_<const std::string&>()(&ugr::gridmap::GridMap::get, py::const_),
 			"Return the entire tensor for a layer")
 		.def("isInBounds", &ugr::gridmap::GridMap::isInBounds, "Test if the given local indices is within bounds")
-		.def("writeToNetCDF",
-			&ugr::gridmap::GridMap::writeToNetCDF,
-			"Write the risk layers to netCDF format for export.")
+//		.def("writeToNetCDF",
+//			&ugr::gridmap::GridMap::writeToNetCDF,
+//			"Write the risk layers to netCDF format for export.")
 		.def_property_readonly("size", &ugr::gridmap::GridMap::getSize, "Return the lengths of the grid")
 		.def_property_readonly("layers", &ugr::gridmap::GridMap::getLayers, "Return the layers in the map");
 

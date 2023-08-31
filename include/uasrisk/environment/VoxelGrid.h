@@ -145,13 +145,13 @@ namespace ur
 		bool isInBounds(const Index& localCoord) const;
 
 
-		/**
-		 * \brief Write the risk layers to netCDF format for export.
-		 * \details This function uses the COARDS netCDF conventions for geospatial data without the time component.
-		 * This means the data can be displayed in external software such as Panoply.
-		 * \param path file path to write to
-		 */
-		void writeToNetCDF(const std::string& path) const;
+//		/**
+//		 * \brief Write the risk layers to netCDF format for export.
+//		 * \details This function uses the COARDS netCDF conventions for geospatial data without the time component.
+//		 * This means the data can be displayed in external software such as Panoply.
+//		 * \param path file path to write to
+//		 */
+//		void writeToNetCDF(const std::string& path) const;
 
 
 		/**

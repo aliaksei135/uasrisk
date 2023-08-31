@@ -66,7 +66,7 @@ TEST(GroundRiskIntegrationTests, FullTest)
 	grvg.eval();
 	
 	std::cout << grvg.getSize();
-	grvg.writeToNetCDF("GRVG Test.nc");
+//	grvg.writeToNetCDF("GRVG Test.nc");
 	
 	return;
 
