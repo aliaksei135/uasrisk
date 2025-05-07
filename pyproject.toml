@@ -1,13 +1,12 @@
 [build-system]
 requires = [
-    "setuptools",
-    "wheel",
-    "scikit-build>=0.13",
-    "cmake",
-    "ninja",
-    "conan==1.60.0",
+  "scikit-build-core-conan",
+  "pybind11",
+  "cmake",
+  "ninja",
+  "conan"
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "scikit_build_core_conan.build"
 
 
 [project]
@@ -36,3 +35,26 @@ test = ["pytest", "numpy"]
 test-command = "pytest {project}/tests"
 test-extras = ["test"]
 build-verbosity = 1
+
+[tool.scikit-build-core-conan]
+path = "."
+build = "missing"
+conanfile = "conanfile.py"
+output-folder = "build"
+wheel.packages = [
+  "python/pyuasrisk",
+  "python/pyuasrisk/data",
+  "python/pyuasrisk/lib",
+]
+cmake.verbose = true
+
+[tool.scikit-build.cmake.define]
+CMAKE_BUILD_TYPE = "Release"
+BUILD_SHARED_LIBS = "OFF"
+BUILD_TESTING = "OFF"
+BUILD_EXAMPLES = "OFF"
+UR_BUILD_CLI = "OFF"
+UR_BUILD_PYTHON_BINDINGS = "ON"
+CMAKE_INSTALL_RPATH = "$ORIGIN"
+CMAKE_BUILD_WITH_INSTALL_RPATH = "ON"
+CMAKE_INSTALL_RPATH_USE_LINK_PATH = "OFF"
