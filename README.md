@@ -68,7 +68,7 @@ graph TD
         PyRiskVoxelGrid[RiskVoxelGrid]
     end
 
-    subgraph uasriskCore [uasrisk C++ Core (ur::)]
+    subgraph uasriskCore [uasrisk C++ Core - ur::]
         direction TB
         CoreRiskVoxelGrid[ur::RiskVoxelGrid] --> CoreAirRisk[ur::air::AirRiskVoxelGrid]
         CoreRiskVoxelGrid --> CoreGroundRisk[ur::ground::GroundRiskVoxelGrid]
@@ -77,7 +77,7 @@ graph TD
         CoreIncGroundRisk[ur::ground::IncrementalGroundRiskVoxelGrid] --> CoreVoxelGrid
     end
 
-    subgraph uasgroundriskCore [uasgroundrisk C++ Core (ugr::)]
+    subgraph uasgroundriskCore [uasgroundrisk C++ Core - ugr::]
         direction TB
         UgrAircraftModel[ugr::risk::AircraftModel]
         UgrPopMap[ugr::mapping::PopulationMap] --> UgrGeoGridMap[ugr::mapping::GeospatialGridMap]
