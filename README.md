@@ -51,7 +51,7 @@ Key `uasgroundrisk` components utilized include:
 
 ```mermaid
 graph TD
-    subgraph PythonBindings [Python Interface (pyuasrisk)]
+    subgraph PythonBindings [Python Interface - pyuasrisk]
         direction LR
         PyVoxelGrid[VoxelGrid]
         PyGridMap[GridMap]
@@ -330,5 +330,3 @@ except Exception as e:
 finally:
     print(f"Note: Dummy data files may have been used from {data_dir}")
 ```
-
-This comprehensive `README.md` should provide a good starting point for new users. For actual use, replace dummy file creations with paths to valid, populated data files.
